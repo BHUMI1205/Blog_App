@@ -1,0 +1,51 @@
+<%- include('../AdminPanel/header') %>
+
+<main id="main" class="main my-5 py-5">
+  <a href="/category" class="m-5">
+    <button type="button" class="btn btn-outline-dark mt-5 ms-5"><span class="bi-arrow-left"></span></button>
+  </a>
+  <div class="d-flex align-items-center justify-content-center">
+    <div class="col-6 offset-xl-1 mt-5 w-25 card p-5 my-5">
+
+      <% if (successMessages.length>0) { %>
+      <div class="alert alert-success">
+        <%=successMessages%>
+      </div>
+      <% } %>
+      <form method="post" action="/categoryupdate" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="<%=data._id%>">
+        <!-- Email input -->
+        <div class="form-outline mb-4">
+          <label class="form-label" for="form1Example13">Category</label>
+          <input type="text" value="<%=data.theme%>" name="theme" class="form-control" placeholder="Category" />
+        </div>
+        <div class="form-outline mb-4">
+          <label class="form-label" for="form1Example13">Description</label>
+          <input type="text" value="<%=data.detail%>" name="detail" class="form-control" placeholder="Description" />
+        </div>
+        <div class="form-outline mb-4">
+          <label class="form-label" for="form1Example13">Image</label>
+          <input type="file" value="<%=data.image%>" name="image" class="form-control">
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Select Status of your Category</label>
+        
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" value="1" <% if (data.status === 1) { %> checked <% } %> />
+                <label class="form-check-label">Active</label>
+            </div>
+        
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" value="0" <% if (data.status === 0) { %> checked <% } %> />
+                <label class="form-check-label">Deactive</label>
+            </div>
+        </div>
+        
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+      </form>
+    </div>
+  </div>
+  </div>
+
+  <%- include('../AdminPanel/footer') %>

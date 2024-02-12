@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+  <title>ZenBlog Bootstrap Template - Index</title>
+  <meta content name="description" />
+  <meta content name="keywords" />
+
+  <!-- Favicons -->
+  <link href="public/img/favicon.png" rel="icon" />
+  <link href="public/img/apple-touch-icon.png" rel="apple-touch-icon" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+
+  <!-- Vendor CSS Files -->
+  <link href="public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="public/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+  <link href="public/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" />
+  <link href="public/vendor/glightbox/css/glightbox.min.css" rel="stylesheet" />
+  <link href="public/vendor/aos/aos.css" rel="stylesheet" />
+
+  <!-- Template Main CSS Files -->
+  <link href="public/css/variables.css" rel="stylesheet" />
+  <link href="public/css/main.css" rel="stylesheet" />
+
+  <!-- =======================================================
+  * Template Name: ZenBlog
+  * Updated: Jan 09 2024 with Bootstrap v5.3.2
+  * Template URL: https://bootstrapmade.com/zenblog-bootstrap-blog-template/
+  * Author: BootstrapMade.com
+  * License: https:///bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+  <!-- ======= Header ======= -->
+  <header id="header" class="header d-flex align-items-center fixed-top mb-5">
+    <div class="container-fluid  d-flex align-items-center justify-content-evenly">
+      <a href="/" class="logo d-flex align-items-center">
+        <h1>Blog</h1>
+      </a>
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <a href="/">
+            <li>Blog</li>
+          </a>
+          <a href="/category">
+            <li></li>Categories</li>
+          </a>
+          <% if (user) { %>
+          <a href="/blog">
+            <li>My Blog</li>
+          </a>
+          <%}%>
+          <% if(user && user.role === "superAdmin"){%>
+            <a href="/newUser">
+              <li>Add New User</li>
+            </a>
+            <%}%>
+          </ul>
+        </nav>
+        <!-- .navbar -->
+        <form action="/searchData" method="post" class="form-inline">
+          <input
+            class="form-control mr-sm-2"
+            type="search"
+            placeholder="Search"
+            name="search"
+          />
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+            Search
+          </button>
+        </form>
+
+          <div class="dropdown ms-5">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select Category
+            </button>
+            <div class="dropdown-menu" aria-labelledby="categoryDropdown">
+              <a class="dropdown-item" href="/">All Category</a>
+              <% categorydata.map((val) => { %>
+              <a class="dropdown-item" href="/getCategoryResult?categoryId=<%=val._id%>"><%= val.theme %></a>
+              <% }) %>
+            </div>
+          </div>
+        <% if (user != undefined ) { %>
+
+          <div class="d-flex">
+            <form class="form-inline d-flex" method="post" action="/DateSearchData">
+              <input type="hidden" name="startDate" />
+              <input type="hidden" name="endDate" />
+              <div id="reportrange" class="pull-right" style="
+                background: #fff;
+                cursor: pointer;
+                padding: 5px 10px;
+                border: 1px solid #ccc;
+              ">
+                <i class="bi bi-calendar"></i>&nbsp; <span></span>
+                <b class="caret"></b>
+              </div>
+              <button class="btn btn-outline-success my-2 ms-2 my-sm-0" type="submit">
+                Search
+              </button>
+            </form>
+          </div>
+
+          <div class="position-relative d-flex align-items-center">
+            <a href="/logout" class="logout-link">Logout <i class="bi bi-box-arrow-right"></i></a>
+          </div>
+          <% } else { %>
+          <div class="position-relative d-flex align-items-center">
+            <a href="/login" class="logout-link">Login</a>
+          </div>
+          <% } %>
+    </div>
+  </header>
+  <!-- End Header -->
+</body>
+
+</html>

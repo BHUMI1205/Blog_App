@@ -1,0 +1,75 @@
+<%- include('../AdminPanel/header') %>
+
+<main id="main" class="main my-5 py-5">
+    <div class="d-flex align-items-center justify-content-center">
+        <div class="col-6 offset-xl-1 mt-5 w-25 card p-5 my-5">
+            <% if (successMessages.length>0) { %>
+            <div class="alert alert-success">
+                <%=successMessages%>
+            </div>
+            <% } %>
+            <form method="post" action="/blogupdate"
+                enctype="multipart/form-data">
+                <input type="hidden" name="id" value="<%=blog._id%>">
+                <div class="form-outline mb-4">
+                    <label class="form-label">Image</label>
+                    <input type="file" name="image" value="<%=blog.image[0]%>"
+                        accept='image/*' multiple>
+                </div>
+                <!-- Email input -->
+                <div class="form-outline mb-4">
+                    <label class="form-label">Category</label>
+                    <select name="theme">
+                        <option value="<%=blog.categoryId._id%>"><%=blog.categoryId.theme%></option>
+                        <%category.map((val)=>{%>
+                            <%console.log(val.theme)%>
+                        <option value="<%=val.id%>"><%=val.theme%></option>
+                        <%})%>
+                    </select>
+
+                </div>
+
+                <div class="form-outline mb-4">
+                    <label class="form-label">Title</label>
+                    <input type="text" name="title" value="<%=blog.title%>"
+                        class="form-control" placeholder="Title" />
+                </div>
+
+                <div class="form-outline mb-4">
+                    <label class="form-label">Description</label>
+                    <input type="text" name="detail" value="<%=blog.detail%>"
+                        class="form-control"
+                        placeholder="Description" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Select Status of your Blog</label>
+                
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="status" value="1" <% if (blog.status === 1) { %> checked <% } %> />
+                        <label class="form-check-label">Active</label>
+                    </div>
+                
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="status" value="0" <% if (blog.status === 0) { %> checked <% } %> />
+                        <label class="form-check-label">Deactive</label>
+                    </div>
+                </div>
+                
+
+                <div class="form-outline mb-4">
+                    <label class="form-label">Exiperd Date</label>
+                    <input type="datetime-local" value="<%=blog.postDeleteDate%>"
+                        name="date"
+                        class="form-control">
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit"
+                    class="btn btn-primary btn-lg btn-block">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../AdminPanel/footer') %>

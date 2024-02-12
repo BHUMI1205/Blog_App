@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title> Free Dental Medical Hospital Website Template | Smarteyeapps.com</title>
+
+        <link rel="shortcut icon" href="public/images/fav.jpg">
+        <link rel="stylesheet" href="public/css/bootstrap.min.css">
+        <link rel="stylesheet" href="public/css/fontawsom-all.min.css">
+        <link rel="stylesheet" type="text/css" href="public/css/style.css" />
+    </head>
+
+    <body class="h-100">
+        <div class="container-fluid full-bg h-100">
+            <div class="container h-100">
+                <div class="row no-margin h-100">
+                    <div class="bg-layer d-flex col-md-4">
+                        <form action="/newUserdata" method="post">
+                            <div class="login-box row">
+                                <h3>User Registeration</h3>
+                                <% if (successMessages.length>0) { %>
+                                    <div class="alert alert-success">
+                                       <%=successMessages%>
+                                    </div>
+                                     <% } %>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"
+                                            id="basic-addon1"><i
+                                                class="fas fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control"
+                                        placeholder="First Name" name="fname">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"
+                                            id="basic-addon1"><i
+                                                class="fas fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control"
+                                        placeholder="Last Name" name="lname">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"
+                                            id="basic-addon1"><i
+                                                class="fas fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control"
+                                        placeholder="UserName" name="username">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"
+                                            id="basic-addon1"><i
+                                                class="fas fa-at"></i></span>
+                                    </div>
+                                    <input type="email" class="form-control"
+                                        placeholder="Email Address" name="email">
+                                </div>  <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"
+                                            id="basic-addon1"><i
+                                                class="fas fa-users"></i></span>
+                                    </div>
+                                    <select name="role" class="form-control">
+                                        <option value="admin">Admin</option>
+                                        <option value="user">User</option>
+                                    </select>
+                                </div>
+                              
+                                <button class="btn btn-success">Click to Register User</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="foter-credit">
+                    <a href="https://smarteyeapps.com/">Designed by :
+                        Smarteyeapps.com</a>
+                </div>
+            </div>
+
+        </div>
+    </body>
+
+    <script src="public/js/jquery-3.2.1.min.js"></script>
+    <script src="public/js/popper.min.js"></script>
+    <script src="public/js/bootstrap.min.js"></script>
+    <script src="public/js/script.js"></script>
+
+</html>

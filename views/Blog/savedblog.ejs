@@ -1,0 +1,82 @@
+<%- include('../AdminPanel/header') %>
+
+<main id="main" class="main my-5 py-5">
+
+  <section id="posts" class="posts">
+    <div class="container" data-aos="fade-up">
+      <div class="row g-5">
+        <% if (successMessages.length>0) { %>
+        <div class="alert alert-success">
+          <%=successMessages%>
+        </div> 
+        <% } %>
+
+        <%blogs.map((val)=>{%>
+        <div class="col-lg-4">
+          <div class="post-entry-1 lg">
+            <%let images = val.image%>
+            <%if(images.length>1){%>
+            <%for(let i=0;i< images.length ; i++){%>
+            <a href="#"><img
+                src="<%=images[i]%>" alt class="img-fluid" width="45%"
+                height="auto"></a>
+            <%}%>
+            <%}else{%>
+            <a href="#"><img
+                src="<%=val.image%>" class="img-fluid" width="320px"
+                height="auto"></a>
+            <%}%>
+            <div class="post-meta"><span class="date"><%=val.theme%></span>
+              <span
+                class="mx-1">&bullet;</span> <span><%=val.createdAt.toDateString()%></span></div>
+            <h3><a href="#"><%=val.title%></a></h3>
+            <p class="mb-4 d-block"><%=val.detail%></p>
+            <div
+              class="d-flex align-items-center author justify-content-between">
+              <div class="name d-flex">
+                <p class="m-0 p-0 text-capitalize">Created By <h6
+                    class="d-inline text-capitalize ms-1"> <%=val.username%></h6></p>
+              </div>
+              <div class="d-flex my-3">
+                <% if (val.isLiked == true) { %>
+                <a href="/unlike?id=<%= val.blogId %>" class="mx-2 text-danger"><span
+                    class="bi-heart-fill"></span></a>
+                <% } else{%>
+                <a href="/like?id=<%= val.blogId %>" class="mx-2 text-danger"><span
+                    class="bi-heart"></span></a>
+                <%}%>
+                <a href="#" class="mx-2 text-danger"><span class="bi-chat"></span></a>
+                <a href="/unsave?id=<%= val.blogId %>" class="mx-2 text-danger "><span
+                    class="bi-trash"></span></a>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <%})%>
+      </div> <!-- End .row -->
+    </div>
+  </section>
+
+  <nav aria-label="Page navigation example">
+    <ul class="pagination d-flex justify-content-center">
+      <li class="page-item">
+        <% if (page > 1) { %>
+          <a class="page-link" href="?page=<%= parseInt(page) - 1 %>">Previous</a>
+        <% } %>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page=<%= parseInt(page) %>"><%= page %></a>
+      </li>
+      <li class="page-item">
+        <% if (blogs.length === limit) { %>
+          <a class="page-link" href="?page=<%= parseInt(page) + 1 %>">Next</a>
+        <% } %>
+        
+      </li>
+    </ul>
+  </nav>
+
+</main>
+
+<%- include('../AdminPanel/footer') %>

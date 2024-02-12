@@ -1,0 +1,63 @@
+<%- include('../AdminPanel/header') %>
+
+<main id="main" class="main">
+  <% if (successMessages.length>0) { %>
+  <div class="alert alert-success"><%=successMessages%></div>
+  <% } %> <% if(user && user.role === "admin"){ %><a href="/categoryDataAdd">
+    <button type="button" class="btn btn-primary">Add Category</button></a
+  >
+
+  <table class="table w-25 mx-auto">
+    <thead>
+      <tr>
+        <th scope="col" class="align-middle">No.</th>
+        <th scope="col" class="align-middle">Category</th>
+        <th scope="col" class="align-middle">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%data.map((val,i)=>{i++%>
+      <tr>
+        <th scope="row" class="align-middle"><%=i%></th>
+        <td class="align-middle"><%=val.theme%></td>
+        <td class="align-middle">
+          <div class="d-flex">
+            <a href="/editcategory?id=<%=val.id%>"
+              ><button class="btn btn-warning me-2">Edit</button></a
+            >
+            <a href="/deletecategory?id=<%=val.id%>"
+              ><button class="btn btn-danger">Delete</button></a
+            >
+          </div>
+        </td>
+      </tr>
+      <%})%>
+    </tbody>
+  </table>
+  <%}else{%>
+
+  <section id="posts" class="posts">
+    <div class="container" data-aos="fade-up">
+      <div class="row g-5">
+        <%data.map((val)=>{%>
+        <div class="col-lg-4">
+          <div class="post-entry-1 lg">
+            <a href="/getCategoryResult?categoryId=<%=val._id%>"
+              ><img src="<%=val.image%>" alt class="img-fluid" width="80%"
+            /></a>
+            <div class="post-meta">
+              <a href="/getCategoryResult?categoryId=<%=val._id%>">
+                <h6 class="text-dark fw-bold"><%=val.theme%></h6></a>
+              <p class="mb-4 d-block"><%=val.detail%></p>
+            </div>
+          </div>
+        </div>
+        <%})%>
+      </div>
+    </div>
+  </section>
+
+  <%}%>
+</main>
+
+<%- include('../AdminPanel/footer') %>
