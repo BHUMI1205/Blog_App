@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const saveblogschema = mongoose.Schema({
   saveUserId: {
@@ -15,6 +15,6 @@ const saveblogschema = mongoose.Schema({
     timestamps: true
   });
 
-const Saveblog = mongoose.model("saveblog", saveblogschema);
+const saveBlog = mongoose.model("saveblog", saveblogschema);
 
-module.exports = Saveblog;
+export {saveBlog};

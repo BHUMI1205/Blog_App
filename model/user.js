@@ -1,6 +1,5 @@
-const mongoose = require("mongoose");
-var bcrypt = require('bcrypt');
-
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userschema = mongoose.Schema({
   fname: {
@@ -55,6 +54,6 @@ userschema.pre('save', function (next) {
   });
 });
 
-const User = mongoose.model("user", userschema);
+const user = mongoose.model("user", userschema);
 
-module.exports = User;
+export {user};

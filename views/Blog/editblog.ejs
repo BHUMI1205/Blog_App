@@ -8,7 +8,7 @@
                 <%=successMessages%>
             </div>
             <% } %>
-            <form method="post" action="/blogupdate"
+            <form method="post" action="/update_blog"
                 enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<%=blog._id%>">
                 <div class="form-outline mb-4">
@@ -22,7 +22,6 @@
                     <select name="theme">
                         <option value="<%=blog.categoryId._id%>"><%=blog.categoryId.theme%></option>
                         <%category.map((val)=>{%>
-                            <%console.log(val.theme)%>
                         <option value="<%=val.id%>"><%=val.theme%></option>
                         <%})%>
                     </select>

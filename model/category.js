@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const categoryschema = mongoose.Schema({
     theme: {
@@ -6,6 +6,10 @@ const categoryschema = mongoose.Schema({
         required: true
     },
     image: {
+        type: String,
+        required: true
+    },
+    public_id: {
         type: String,
         required: true
     },
@@ -28,4 +32,4 @@ const categoryschema = mongoose.Schema({
 
 const category = mongoose.model('category', categoryschema);
 
-module.exports = category;
+export { category };

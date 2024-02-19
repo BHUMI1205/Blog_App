@@ -1,24 +1,24 @@
-const express = require("express");
+import express from 'express';
 
-const router = express.Router();
+const userRoutes = express.Router();
 
-const loginController = require("../controller/usercontroller");
-const {checkRole,jwt} = require("../middelwares/jwt");
+import { register, userdata, login, logindata, forgotpassword, emailAddress, getOtp, otpdata, changepassword, newpassword, logout, newUser, newUserdata } from "../controller/usercontroller.js";
+import { checkRole, jwt } from "../middelwares/jwt.js";
 
-router.get("/register", loginController.register);
-router.post("/userdata", loginController.userdata); 
-router.get("/login", loginController.login);
-router.post("/logindata", loginController.logindata);
-router.get("/forgotpassword", loginController.forgotpassword);
-router.post("/emailAddress", loginController.emailAddress);
-router.get("/getOtp", loginController.getOtp);
-router.post("/otpdata", loginController.otpdata);
-router.get("/changepassword", loginController.changepassword);
-router.post("/newpassword", loginController.newpassword);
-router.get("/logout", loginController.logout);
+userRoutes.get("/register", register);
+userRoutes.post("/userdata", userdata);
+userRoutes.get("/login", login);
+userRoutes.post("/logindata", logindata);
+userRoutes.get("/forgot_password", forgotpassword);
+userRoutes.post("/email_address", emailAddress);
+userRoutes.get("/getOtp", getOtp);
+userRoutes.post("/otpdata", otpdata);
+userRoutes.get("/change_password", changepassword);
+userRoutes.post("/new_password", newpassword);
+userRoutes.get("/logout", logout);
 
 
-router.get("/newUser",jwt,checkRole('superAdmin'), loginController.newUser);
-router.post("/newUserdata",jwt,checkRole('superAdmin'), loginController.newUserdata);
+userRoutes.get("/newUser", jwt, checkRole('superAdmin'), newUser);
+userRoutes.post("/newUserdata", jwt, checkRole('superAdmin'), newUserdata);
 
-module.exports = router;
+export { userRoutes };

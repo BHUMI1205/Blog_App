@@ -1,9 +1,9 @@
-const { user } = require("./controller");
-const { validateRegisterData, validateNewUserRegisterData } = require("../validators/register");
-const { validateLoginData, validateEmailData, validatePasswordData } = require("../validators/login");
-const jwt = require("jsonwebtoken");
-let nodemailer = require("nodemailer");
-var bcrypt = require('bcrypt');
+import { user } from "./models.js";
+import { validateRegisterData, validateNewUserRegisterData } from "../validators/register.js";
+import { validateLoginData, validateEmailData, validatePasswordData } from "../validators/login.js";
+import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
+import  bcrypt from 'bcrypt';
 
 const register = (req, res) => {
   return res.render("Login/register");
@@ -172,7 +172,7 @@ const otpdata = async (req, res) => {
     let cookieotp = req.cookies["forgetpassword"].otp;
     let otp = req.body.otp;
     if (cookieotp == otp) {
-      return res.redirect("/changepassword");
+      return res.redirect("/change_password");
     } else {
       req.flash("otp", "otp is wrong");
       return res.redirect("back");
@@ -268,9 +268,6 @@ const newUserdata = async (req, res) => {
           password: password
         });
 
-
-
-
         if (data) {
           var transporter = nodemailer.createTransport({
             service: "gmail",
@@ -307,7 +304,7 @@ const newUserdata = async (req, res) => {
   }
 }
 
-module.exports = {
+export {
   register,
   userdata,
   login,

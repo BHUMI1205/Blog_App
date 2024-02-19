@@ -3,7 +3,8 @@
 <main id="main" class="main">
   <% if (successMessages.length>0) { %>
   <div class="alert alert-success"><%=successMessages%></div>
-  <% } %> <% if(user && user.role === "admin"){ %><a href="/categoryDataAdd">
+  <% } %>
+   <% if(user && user.role != "user"){ %><a href="/category_Add">
     <button type="button" class="btn btn-primary">Add Category</button></a
   >
 
@@ -22,10 +23,10 @@
         <td class="align-middle"><%=val.theme%></td>
         <td class="align-middle">
           <div class="d-flex">
-            <a href="/editcategory?id=<%=val.id%>"
+            <a href="/edit_category?id=<%=val.id%>"
               ><button class="btn btn-warning me-2">Edit</button></a
             >
-            <a href="/deletecategory?id=<%=val.id%>"
+            <a href="/delete_category?id=<%=val.id%>"
               ><button class="btn btn-danger">Delete</button></a
             >
           </div>

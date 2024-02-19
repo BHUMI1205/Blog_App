@@ -14,4 +14,4 @@ const paginationMiddleware = (req, res, next) => {
   next();
 };
 
-module.exports = paginationMiddleware;
+export {paginationMiddleware};

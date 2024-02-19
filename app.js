@@ -1,15 +1,21 @@
-const express = require("express");
-const path = require("path");
-const passport = require("passport");
-const flash = require("connect-flash");
-const session = require("express-session");
-const cookieParser = require("cookie-parser");
+import express from 'express';
+import path from 'path';
+import flash from 'connect-flash';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const app = express();
 const port = 7500;
-       
-app.set("view engine", "ejs"); 
-app.use(express.urlencoded());    
+app.set("view engine", "ejs");
+app.use(express.urlencoded());
 app.use(flash());
 app.use(cookieParser());
 
@@ -22,32 +28,38 @@ app.use(
 );
 
 app.use(passport.initialize());
-app.use(passport.session()); 
+app.use(passport.session());
 
 app.use((req, res, next) => {
   res.locals.successMessages = req.flash("success");
   next();
 });
 
-app.use("/", require("./router"));
-app.use("/", require("./router/user"));
-app.use("/", require("./router/category")); 
-app.use("/", require("./router/blog"));
- 
+
+import { routes } from './router/main.js';
+import { userRoutes } from './router/user.js';
+import { categoryRoutes } from './router/category.js';
+import { blogRoutes } from './router/blog.js';
+
+app.use("/", routes);
+app.use("/", userRoutes);
+app.use("/", categoryRoutes);
+app.use("/", blogRoutes);
+
+
 app.use("/public", express.static(path.join(__dirname, "public")));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
- 
-const db = require("./config/mongoose");
-const auth = require("./helper/auth");
+
+import { db } from "./config/mongoose.js";
+import { passport } from "./helper/auth.js";
 
 app.get(
-  "/auth/google", 
-  auth.authenticate("google", { scope: ["profile", "email"] })
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
-
+ 
 app.get(
   "/auth/google/callback",
-  auth.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
     return res.redirect("/");
   }

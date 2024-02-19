@@ -1,6 +1,6 @@
-const validator = require("validator");
+import validator from "validator";
 
-const validateUserData = (fname, lname, username, email, password) => {
+const validateRegisterData = (fname, lname, username, email, password) => {
   if (fname === "" || lname === "" || username === "" || email === "" || password === "") {
     return "Fill all fields";
   } else if (!validator.isAlpha(fname)) {
@@ -36,4 +36,4 @@ const validateNewUserRegisterData = (fname, lname, username, email) => {
 };
 
 
-module.exports = { validateUserData, validateNewUserRegisterData }
+export { validateRegisterData, validateNewUserRegisterData }

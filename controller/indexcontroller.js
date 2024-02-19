@@ -1,12 +1,7 @@
-const {
-  blog,
-  scheduleDeletion,
-  category,
+import { blog, category } from "./models.js";
+import { scheduleDeletion } from "../middelwares/postdelete.js";
 
-} = require("./controller");
-
-const blogPostData = require('../Aggregrate/blogPost_aggregation');
-
+import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 
 const blogPosts = async (req, res) => {
   try {
@@ -44,6 +39,6 @@ const blogPosts = async (req, res) => {
   }
 };
 
-module.exports = {
-  blogPosts,
+export {
+  blogPosts
 };

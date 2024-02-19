@@ -1,4 +1,4 @@
-const validator = require("validator");
+import validator from "validator";
 
 const validateLoginData = (email, password) => {
   if (email === "" || password === "") {
@@ -28,4 +28,4 @@ const validatePasswordData = ( password) => {
   }
 };
 
-module.exports = { validateLoginData, validatePasswordData, validateEmailData };
+export{ validateLoginData, validatePasswordData, validateEmailData };

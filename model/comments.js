@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const commentschema = mongoose.Schema({
   blogId: {
@@ -22,6 +22,6 @@ const commentschema = mongoose.Schema({
     timestamps: true
   });
 
-const comment = mongoose.model("comment", commentschema);
+const Comment = mongoose.model("comment", commentschema);
 
-module.exports = comment;
+export { Comment };

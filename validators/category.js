@@ -1,4 +1,4 @@
-const validator = require("validator");
+import validator from "validator";
 
 const validateCategoryData = (theme, detail, image) => {
   if (theme === "" || detail === "") {
@@ -26,4 +26,4 @@ const validateUpdateCategoryData = (theme, detail) => {
   }
 };
 
-module.exports = { validateCategoryData, validateUpdateCategoryData };
+export{ validateCategoryData, validateUpdateCategoryData };

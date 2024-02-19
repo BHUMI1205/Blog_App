@@ -1,17 +1,16 @@
-const express = require("express");
+import express from 'express';
 
-const router = express.Router();
+const categoryRoutes = express.Router();
 
-const categoryController = require("../controller/categorycontroller");
-const { imagedata } = require("../middelwares/images");
-const { checkRole, jwt } = require("../middelwares/jwt");
+import { getCategory, categoryAdd, categoryDataAdd, deletecategory, editcategory, categoryupdate } from "../controller/categorycontroller.js";
+import { checkRole, jwt } from "../middelwares/jwt.js";
+import { imagedata } from "../middelwares/images.js";
 
+categoryRoutes.get("/category", jwt, getCategory);
+categoryRoutes.post("/add_categoryData", jwt, imagedata, categoryDataAdd);
+categoryRoutes.get("/category_Add", jwt, categoryAdd);
+categoryRoutes.get("/delete_category", jwt, checkRole('superAdmin'), deletecategory);
+categoryRoutes.get("/edit_category", jwt, checkRole('superAdmin'), editcategory);
+categoryRoutes.post("/update_category", jwt, checkRole('superAdmin'), imagedata, categoryupdate);
 
-router.get("/category", jwt, categoryController.getCategory);
-router.post("/categoryDataAdd", jwt, imagedata, categoryController.categoryDataAdd);
-router.get("/categoryAdd", jwt, categoryController.categoryAdd);
-router.get("/deletecategory", jwt, checkRole('superAdmin'), categoryController.deletecategory);
-router.get("/editcategory", jwt, checkRole('superAdmin'), categoryController.editcategory);
-router.post("/categoryupdate",jwt, checkRole('superAdmin'),imagedata,categoryController.categoryupdate);
-
-module.exports = router;
+export { categoryRoutes };

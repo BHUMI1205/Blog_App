@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const likeschema = mongoose.Schema({
   blogId: {
@@ -17,4 +17,4 @@ const likeschema = mongoose.Schema({
 
 const like = mongoose.model("like", likeschema);
 
-module.exports = like;
+export {like};

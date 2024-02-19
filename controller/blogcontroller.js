@@ -1,17 +1,26 @@
-const {
-  blog,
-  user,
-  like,
-  saveBlog,
-  category,
-  Comment,
-} = require("./controller");
-const { validateBlogData, validateUpdateBlogData, validateUpdateLikeData } = require("../validators/blog");
-const blogPostData = require('../Aggregrate/blogUserPost_aggregation');
-const saveBlogPostData = require('../Aggregrate/saveBlogPost_aggregation');
+import fs from "fs";
+import streamifier from "streamifier";
+import { blog, user, like, saveBlog, category, Comment } from "./models.js";
+import { validateBlogData, validateUpdateBlogData, validateUpdateLikeData } from "../validators/blog.js";
 
-const fs = require("fs");
-const Saveblog = require("../model/saveblog");
+import { v2 as cloudinary } from "cloudinary";
+import dotenv from 'dotenv';
+dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
+import { blogPostData } from '../Aggregrate/blogUserPost_aggregation.js';
+import { saveBlogPostData } from '../Aggregrate/saveBlogPost_aggregation.js';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 const getBlog = async (req, res) => {
   try {
@@ -47,7 +56,7 @@ const getBlog = async (req, res) => {
             _id: "$_id",
             username: "$username",
             blogId: "$userBlogs._id",
-            role:"$role"
+            role: "$role"
           },
         },
       ])
@@ -92,62 +101,103 @@ const blogDataAdd = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
       const { theme, title, detail, date, status } = req.body;
-      let imageLength = req.files.length;
-      const validationError = validateBlogData(title, detail, imageLength);
+      const validationError = validateBlogData(title, detail);
 
       if (validationError) {
-        req.flash("success", validationError);
+        req.flash("error", validationError);
         return res.redirect("back");
       } else {
-        let data = await blog.create({
+        const uploadPromises = req.files.map(file => {
+          return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream({
+              public_id: Date.now() + Math.floor(Math.random() * 1000000),
+              resource_type: "image",
+              folder: "blogs/image"
+            }, (err, result) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(result);
+              }
+            });
+
+            streamifier.createReadStream(file.buffer).pipe(uploadStream);
+          });
+        });
+
+        const uploadResults = await Promise.all(uploadPromises);
+
+        const imageUrls = [];
+        const publicIds = [];
+
+        uploadResults.forEach(result => {
+          if (result.url && result.public_id) {
+            imageUrls.push(result.url);
+            publicIds.push(result.public_id);
+          }
+        });
+
+        const data = await blog.create({
           categoryId: theme,
           title: title,
           detail: detail,
-          image: req.files.map((file) => file.path),
+          image: imageUrls,
+          public_id: publicIds,
           userId: req.user.id,
           postDeleteDate: date,
           status: status
         });
+
         if (!data) {
-          req.flash("success", "Blog is not Added");
+          req.flash("error", "Blog is not Added");
           return res.redirect("back");
+        } else {
+          return res.redirect("/blog");
         }
-        return res.redirect("/blog");
       }
     } else {
       return res.redirect('/');
     }
   } catch (err) {
-    console.log(err);
-    return false;
+    console.error(err);
+    req.flash("error", "An error occurred");
+    return res.redirect('/');
   }
 };
 
 const deleteblog = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
-      let data = await blog.findByIdAndDelete(req.query.id);
-      if (data) {
-        let image = data.image;
-        for (let i = 0; i < image.length; i++) {
-          fs.unlinkSync(data.image[i]);
+      let imageFile = await blog.findById(req.query.id);
+      if (imageFile) {
+        let data = await blog.findByIdAndDelete(req.query.id);
+        if (data) {
+          let publicId = imageFile.public_id;
+          for (let i = 0; i < publicId.length; i++) {
+            cloudinary.uploader.destroy(publicId[i]);
+          }
+          let comment = await Comment.deleteMany({ blogId: req.query.id });
+          let Like = await like.deleteMany({ blogId: req.query.id });
+          let savedBlog = await saveBlog.deleteMany({ blogId: req.query.id });
+          if (comment, Like, savedBlog) {
+            req.flash("success", "Blog is Deleted");
+            return res.redirect("back");
+          } else {
+            req.flash("success", "Blog is not Deleted");
+            return res.redirect("back");
+          }
         }
-        let comment = await Comment.deleteMany({ blogId: req.query.id });
-        let Like = await like.deleteMany({ blogId: req.query.id });
-        let saveBlog = await Saveblog.deleteMany({ blogId: req.query.id });
-        if ((comment, Like, saveBlog)) {
-          req.flash("success", "Blog is Deleted");
-          return res.redirect("back");
-        } else {
-          req.flash("success", "Blog is not Deleted");
-          return res.redirect("back");
-        }
+        req.flash("success", "Blog is not Deleted");
+        return res.redirect("back");
       }
-      req.flash("success", "Blog is not Deleted");
-      return res.redirect("back");
+      else {
+        req.flash("success", "Category is not Deleted from Cloudinary");
+        return res.redirect("back");
+      }
     } else {
       return res.redirect('/')
     }
+
   } catch (err) {
     console.log(err);
     return false;
@@ -180,7 +230,7 @@ const blogupdate = async (req, res) => {
       const { id, theme, title, detail, date, status } = req.body;
       let Blogdata = await blog.findById(id);
       const validationError = validateUpdateBlogData(title, detail);
-
+      
       if (validationError) {
         req.flash("success", validationError);
         return res.redirect("back");
@@ -189,18 +239,49 @@ const blogupdate = async (req, res) => {
           req.flash("success", "You can only add 4 images");
           return res.redirect("back");
         } else {
-          let image = Blogdata.image;
-          for (let i = 0; i < image.length; i++) {
-            fs.unlinkSync(Blogdata.image[i]);
+          let publicId = Blogdata.public_id;
+          for (let i = 0; i < publicId.length; i++) {
+            cloudinary.uploader.destroy(publicId[i]);
           }
+
+          const uploadPromises = req.files.map(file => {
+            return new Promise((resolve, reject) => {
+              const uploadStream = cloudinary.uploader.upload_stream({
+                public_id: Date.now() + Math.floor(Math.random() * 1000000),
+                resource_type: "image",
+                folder: "blogs/image"
+              }, (err, result) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(result);
+                }
+              });
+
+              streamifier.createReadStream(file.buffer).pipe(uploadStream);
+            });
+          });
+
+          const uploadResults = await Promise.all(uploadPromises);
+
+          const imageUrls = [];
+          const publicIds = [];
+
+          uploadResults.forEach(result => {
+            if (result.url && result.public_id) {
+              imageUrls.push(result.url);
+              publicIds.push(result.public_id);
+            }
+          });
 
           let data = await blog.findByIdAndUpdate(id, {
             categoryId: theme,
             detail: detail,
             title: title,
+            image: imageUrls,
+            public_id: publicIds,
             postDeleteDate: date,
-            status: status,
-            image: req.files.map((file) => file.path),
+            status: status
           });
           if (data) {
             req.flash("success", "Blog is Updated");
@@ -218,6 +299,8 @@ const blogupdate = async (req, res) => {
           status: status,
           date: Blogdata.date,
           image: Blogdata.image,
+          public_id: Blogdata.publicIds,
+
         });
         if (data) {
           req.flash("success", "Blog is Updated");
@@ -271,7 +354,6 @@ const likes = async (req, res) => {
 
 const unlike = async (req, res) => {
   try {
-
     let blogId = req.query.id;
     let userId = req.user.id;
     let existingLike = await like.findOne({ blogId, userId });
@@ -422,96 +504,113 @@ const comments = async (req, res) => {
 };
 
 const searchData = async (req, res) => {
-  const { startIndex, limit } = req.pagination;
+  try {
+    const { startIndex, limit } = req.pagination;
 
-  const categorydata = await category.find({});
+    const categorydata = await category.find({});
 
-  categorySearch = await category.find({
-    theme: { $regex: req.body.search },
-  });
+    const categorySearch = await category.find({
+      theme: { $regex: req.body.search },
+    });
 
-  themes = categorySearch.map((val) => val.theme);
+    const themes = categorySearch.map((val) => val.theme);
+
+    let blogs = await blog.aggregate([
+      ...blogPostData, {
+        $match: {
+          $or: [
+            { theme: { $regex: req.body.search } },
+            { title: { $regex: req.body.search } }
+          ]
+        },
+      }
+    ]).skip(startIndex).limit(limit);
 
 
-  let blogs = await blog.aggregate([
-    ...blogPostData, {
-      $match: {
-        $or: [
-          { theme: { $regex: req.body.search } },
-          { title: { $regex: req.body.search } }
-        ]
-      },
-    }
-  ]).skip(startIndex).limit(limit);
-
-
-  return res.render("AdminPanel/index", {
-    categorydata,
-    blogs,
-    totalPages: Math.ceil(blogs.length / limit),
-    page: req.pagination.page,
-    user: req.user,
-    themes,
-    limit
-  });
+    return res.render("AdminPanel/index", {
+      categorydata,
+      blogs,
+      totalPages: Math.ceil(blogs.length / limit),
+      page: req.pagination.page,
+      user: req.user,
+      themes,
+      limit
+    });
+  }
+  catch (err) {
+    console.error(err);
+    return res.status(500).send("Internal Server Error");
+  }
 }
 
 const DateSearchData = async (req, res) => {
-  const { startIndex, limit } = req.pagination;
+  try {
+    const { startIndex, limit } = req.pagination;
 
-  const categorydata = await category.find({});
+    const categorydata = await category.find({});
 
-  const startDate = new Date(req.body.startDate);
-  const endDate = new Date(req.body.endDate);
+    const startDate = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
 
-  let blogs = await blog.aggregate([
-    {
-      $match: {
-        createdAt: { $gte: startDate, $lte: endDate }
-      }
-    }, ...blogPostData]).skip(startIndex)
-    .limit(limit);
+    let blogs = await blog.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate }
+        }
+      }, ...blogPostData]).skip(startIndex)
+      .limit(limit);
 
-  return res.render("AdminPanel/index", {
-    categorydata,
-    blogs,
-    totalPages: Math.ceil(blogs.length / limit),
-    page: req.pagination.page,
-    user: req.user,
-    themes: [],
-    limit
-  });
+    return res.render("AdminPanel/index", {
+      categorydata,
+      blogs,
+      totalPages: Math.ceil(blogs.length / limit),
+      page: req.pagination.page,
+      user: req.user,
+      themes: [],
+      limit
+    });
+  }
+  catch (err) {
+    console.log(err);
+    return false;
+  }
 }
 
 const getCategoryResult = async (req, res) => {
-  const { startIndex, limit, page } = req.pagination;
+  try {
+    const { startIndex, limit, page } = req.pagination;
 
-  const categories = await category.findById(req.query.categoryId);
-  const categorydata = await category.find({});
-  let blogs, themes = [];
+    const categories = await category.findById(req.query.categoryId);
+    const categorydata = await category.find({});
+    let blogs, themes = [];
 
-  if (categories === null) {
-    req.flash('success', 'There is no Post of this Category')
-    return res.redirect('back');
-  } else {
-    blogs = await blog.aggregate([
-      {
-        $match: {
-          categoryId: categories._id,
-        },
-      }, ...blogPostData]).skip(startIndex).limit(limit);
+    if (categories === null) {
+      req.flash('success', 'There is no Post of this Category')
+      return res.redirect('back');
+    } else {
+      blogs = await blog.aggregate([
+        {
+          $match: {
+            categoryId: categories._id,
+          },
+        }, ...blogPostData]).skip(startIndex).limit(limit);
+    }
+
+    return res.render("AdminPanel/index", {
+      categorydata,
+      blogs,
+      totalPages: Math.ceil(blogs.length / limit),
+      page: page,
+      user: req.user,
+      themes,
+      limit
+    });
   }
-
-  return res.render("AdminPanel/index", {
-    categorydata,
-    blogs,
-    totalPages: Math.ceil(blogs.length / limit),
-    page: page,
-    user: req.user,
-    themes,
-    limit
-  });
-} 
+  catch (err) {
+    console.log(err);
+    return false;
+  }
+}
 
 const userPost = async (req, res) => {
   try {
@@ -582,6 +681,9 @@ const blogActive = async (req, res) => {
     if (blogUpdate) {
       req.flash("success", "Blog Activted Successfully");
       return res.redirect('back');
+    } else {
+      req.flash("success", "Blog is not Activted!");
+      return res.redirect('back');
     }
   } catch (err) {
     console.log(err);
@@ -599,10 +701,15 @@ const blogDeactive = async (req, res) => {
       req.flash("success", "Blog Deactivted Successfully");
       return res.redirect('back');
     }
+    else {
+      req.flash("success", "Blog is not Deactivted!");
+      return res.redirect('back');
+    }
   } catch (err) {
     console.log(err);
     return false;
   }
+
 }
 
 const adminRole = async (req, res) => {
@@ -613,6 +720,9 @@ const adminRole = async (req, res) => {
     });
     if (blogUpdate) {
       req.flash("success", "Role Updated Successfully");
+      return res.redirect('back');
+    } else {
+      req.flash("success", "Role is not Updated!");
       return res.redirect('back');
     }
   } catch (err) {
@@ -630,6 +740,9 @@ const userRole = async (req, res) => {
     if (blogUpdate) {
       req.flash("success", "Role Updated Successfully");
       return res.redirect('back');
+    } else {
+      req.flash("success", "Role is not Updated!");
+      return res.redirect('back');
     }
   } catch (err) {
     console.log(err);
@@ -637,7 +750,7 @@ const userRole = async (req, res) => {
   }
 }
 
-module.exports = {
+export {
   getBlog,
   blogAdd,
   blogDataAdd,

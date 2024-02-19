@@ -1,32 +1,32 @@
-const express = require("express");
+import express from 'express';
 
-const router = express.Router();
+const blogRoutes = express.Router();
 
-const blogController = require("../controller/blogcontroller");
-const { checkRole, jwt } = require("../middelwares/jwt");
-const paginationMiddleware = require("../middelwares/pagination");
-const { multipleimageUpload } = require("../middelwares/images");
+import { getBlog, blogAdd, blogDataAdd, deleteblog, editblog, blogupdate, likes, unlike, save, unsave, savedblogs, comments, searchData, DateSearchData, getCategoryResult, userPost, blogActive, blogDeactive, adminRole, userRole } from "../controller/blogcontroller.js";
+import { checkRole, jwt } from "../middelwares/jwt.js";
+import { multipleimageUpload } from "../middelwares/images.js";
+import { paginationMiddleware } from "../middelwares/pagination.js";
 
 
-router.get("/blog", jwt, paginationMiddleware, blogController.getBlog);
-router.get("/blogAdd", jwt, blogController.blogAdd);
-router.post("/blogDataAdd", jwt, multipleimageUpload, blogController.blogDataAdd);
-router.get("/deleteblog", jwt, blogController.deleteblog);
-router.get("/editblog", jwt, blogController.editblog);
-router.post("/blogupdate", jwt, multipleimageUpload, blogController.blogupdate);
-router.get("/like", jwt, blogController.likes);
-router.get("/unlike", jwt, blogController.unlike);
-router.get("/save", jwt, blogController.save);
-router.get("/unsave", jwt, blogController.unsave);
-router.get("/savedblogs", paginationMiddleware, jwt, blogController.savedblogs);
-router.post("/comment", jwt, blogController.comments);
-router.post("/searchData", paginationMiddleware, jwt, blogController.searchData);
-router.post("/DateSearchData", paginationMiddleware, jwt, blogController.DateSearchData);
-router.get("/getCategoryResult", paginationMiddleware, jwt, blogController.getCategoryResult);
-router.get("/userPost", paginationMiddleware, jwt, blogController.userPost);
-router.get("/blogActive", paginationMiddleware, jwt, blogController.blogActive);
-router.get("/blogDeactive", paginationMiddleware, jwt, blogController.blogDeactive);
-router.get("/adminRole",jwt, checkRole('superAdmin'), paginationMiddleware, blogController.adminRole);
-router.get("/userRole",jwt, checkRole('superAdmin'), paginationMiddleware, blogController.userRole);
+blogRoutes.get("/blog", jwt, paginationMiddleware, getBlog);
+blogRoutes.get("/blog_Add", jwt, blogAdd);
+blogRoutes.post("/add_blogData", jwt, multipleimageUpload, blogDataAdd);
+blogRoutes.get("/delete_blog", jwt, deleteblog);
+blogRoutes.get("/edit_blog", jwt, editblog);
+blogRoutes.post("/update_blog", jwt, multipleimageUpload, blogupdate);
+blogRoutes.get("/like", jwt, likes);
+blogRoutes.get("/unlike", jwt, unlike);
+blogRoutes.get("/save", jwt, save);
+blogRoutes.get("/unsave", jwt, unsave);
+blogRoutes.get("/savedblogs", paginationMiddleware, jwt, savedblogs);
+blogRoutes.post("/comment", jwt, comments);
+blogRoutes.post("/searchData", paginationMiddleware, jwt, searchData);
+blogRoutes.post("/DateSearchData", paginationMiddleware, jwt, DateSearchData);
+blogRoutes.get("/getCategoryResult", paginationMiddleware, jwt, getCategoryResult);
+blogRoutes.get("/userPost", paginationMiddleware, jwt, userPost);
+blogRoutes.get("/blogActive", paginationMiddleware, jwt, blogActive);
+blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blogDeactive);
+blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware, adminRole);
+blogRoutes.get("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, userRole);
 
-module.exports = router;
+export { blogRoutes };

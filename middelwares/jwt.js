@@ -1,8 +1,9 @@
-const jsonwebtoken = require("jsonwebtoken");
- require("../helper/auth");
+import jsonwebtoken from "jsonwebtoken";
+
+import { passport } from "../helper/auth.js";
 
 const jwt = (req, res, next) => {
-  const token = req.cookies.token;  
+  const token = req.cookies.token;
 
   if (token) {
     try {
@@ -25,15 +26,18 @@ const jwt = (req, res, next) => {
 
 const checkRole = (role) => {
   return (req, res, next) => {
-    console.log(req.user);
-    if (req.user.role == role || req.user.role == "superAdmin") {
-      return next();
-    } else {
-      req.flash("success","Access denied");
-      return res.redirect('back');
+    if (req.isAuthenticated()) {
+      if (req.user.role == role || req.user.role == "superAdmin") {
+        return next();
+      } else {
+        req.flash("success", "Access denied");
+        return res.redirect('back');
+      }
+    }else{
+      return res.redirect('/')
     }
   }
 }
 
 
-module.exports = { jwt, checkRole };
+export { jwt, checkRole };
