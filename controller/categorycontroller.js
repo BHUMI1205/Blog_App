@@ -1,6 +1,7 @@
 import streamifier from "streamifier";
 import { category, blog, like, Comment, saveBlog } from "./models.js";
 import { validateCategoryData, validateUpdateCategoryData } from "../validators/category.js";
+import { logger } from '../logger.js';
 
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from 'dotenv';
@@ -23,6 +24,7 @@ const getCategory = async (req, res) => {
       categorydata
     });
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -36,6 +38,7 @@ const categoryAdd = async (req, res) => {
       categorydata
     });
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -54,6 +57,7 @@ const categoryDataAdd = async (req, res) => {
 
       }, (err, result) => {
         if (err) {
+          logger.warning("Error uploading image to Cloudinary")
           req.flash("error", "Error uploading image to Cloudinary");
           return res.redirect("back");
         }
@@ -74,6 +78,7 @@ const categoryDataAdd = async (req, res) => {
             status: status
           });
           if (!data) {
+            logger.warning("Category is not Added")
             req.flash("error", "Category is not Added");
             return res.redirect("back");
           } else {
@@ -84,17 +89,18 @@ const categoryDataAdd = async (req, res) => {
 
       streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
     } else {
+      logger.warning("Category already exists")
       req.flash("error", "Category already exists");
       return res.redirect("back");
     }
   } catch (err) {
-    console.error(err);
-    req.flash("error", "Internal Server Error");
+    logger.error(err);
+    console.log(err);
     return res.redirect("back");
   }
 };
 
-const deletecategory = async (req, res) => {  
+const deletecategory = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
       let imageFile = await category.findById(req.query.id);
@@ -115,20 +121,24 @@ const deletecategory = async (req, res) => {
             let comment = await Comment.deleteMany({ blogId: blogDocuments[0]._id });
             let Like = await like.deleteMany({ blogId: blogDocuments[0]._id });
             let Saveblog = await saveBlog.deleteMany({ blogId: blogDocuments[0]._id });
-            if ((blogData || comment || Like || Saveblog || "")) {
+            if (blogData || comment || Like || Saveblog || "") {
+              logger.info("Category is Deleted")
               req.flash("success", "Blog is Deleted");
               return res.redirect("back");
             } else {
+              logger.warning("Category is not Deleted")
               req.flash("success", "Blog is not Deleted");
               return res.redirect("back");
             }
           }
         } else {
+          logger.warning("Category is not Deleted")
           req.flash("success", "Category is not Deleted");
           return res.redirect("back");
         }
       }
       else {
+        logger.warning("Category is not Deleted from Cloudinary")
         req.flash("success", "Category is not Deleted from Cloudinary");
         return res.redirect("back");
       }
@@ -136,6 +146,7 @@ const deletecategory = async (req, res) => {
       return res.redirect('/')
     }
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -151,6 +162,7 @@ const editcategory = async (req, res) => {
       categorydata
     });
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -167,15 +179,16 @@ const categoryupdate = async (req, res) => {
       let categories = await category.findById(id);
 
       if (req.file) {
-        let publicId = categories.public_id; 
+        let publicId = categories.public_id;
         cloudinary.uploader.destroy(publicId);
         const uploadStream = cloudinary.uploader.upload_stream({
           public_id: Date.now() + Math.floor((Math.random() * 1000000)),
           resource_type: "image",
           folder: "blogs/image"
 
-        }, async(err, result) => {
+        }, async (err, result) => {
           if (err) {
+            logger.warning("Error uploading image to Cloudinary")
             req.flash("error", "Error uploading image to Cloudinary");
             return res.redirect("back");
           }
@@ -188,10 +201,11 @@ const categoryupdate = async (req, res) => {
               public_id: result.public_id,
               adminId: req.user.id,
             });
-            console.log(data); 
+            console.log(data);
             if (data) {
               return res.redirect("/category");
             } else {
+              logger.warning("Category is not updated")
               req.flash("success", "Category is not updated");
               return res.redirect("/category");
             }
@@ -208,6 +222,7 @@ const categoryupdate = async (req, res) => {
         if (data) {
           return res.redirect("/category");
         } else {
+          logger.warning("Category is not updated")
           req.flash("success", "Category is not updated");
           return res.redirect("/category");
         }
@@ -215,6 +230,7 @@ const categoryupdate = async (req, res) => {
     }
   }
   catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }

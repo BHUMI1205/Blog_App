@@ -2,6 +2,7 @@ import fs from "fs";
 import streamifier from "streamifier";
 import { blog, user, like, saveBlog, category, Comment } from "./models.js";
 import { validateBlogData, validateUpdateBlogData, validateUpdateLikeData } from "../validators/blog.js";
+import { logger } from '../logger.js';
 
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from 'dotenv';
@@ -75,6 +76,7 @@ const getBlog = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+    logger.error(err);
     return false;
   }
 };
@@ -92,6 +94,7 @@ const blogAdd = async (req, res) => {
       return res.redirect('/');
     }
   } catch (err) {
+    console.log(err);
     console.log(err);
     return false;
   }
@@ -149,6 +152,7 @@ const blogDataAdd = async (req, res) => {
         });
 
         if (!data) {
+          logger.warning("Blog is not Added");
           req.flash("error", "Blog is not Added");
           return res.redirect("back");
         } else {
@@ -159,7 +163,7 @@ const blogDataAdd = async (req, res) => {
       return res.redirect('/');
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     req.flash("error", "An error occurred");
     return res.redirect('/');
   }
@@ -180,17 +184,21 @@ const deleteblog = async (req, res) => {
           let Like = await like.deleteMany({ blogId: req.query.id });
           let savedBlog = await saveBlog.deleteMany({ blogId: req.query.id });
           if (comment, Like, savedBlog) {
+            logger.info("Blog is Deleted")
             req.flash("success", "Blog is Deleted");
             return res.redirect("back");
           } else {
+            logger.warning("Blog is not Deleted")
             req.flash("success", "Blog is not Deleted");
             return res.redirect("back");
           }
         }
+        logger.warning("Blog is not Deleted")
         req.flash("success", "Blog is not Deleted");
         return res.redirect("back");
       }
       else {
+        logger.warning("Category is not Deleted from Cloudinary")
         req.flash("success", "Category is not Deleted from Cloudinary");
         return res.redirect("back");
       }
@@ -199,6 +207,7 @@ const deleteblog = async (req, res) => {
     }
 
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -219,6 +228,7 @@ const editblog = async (req, res) => {
       return res.redirect('back');
     }
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -230,7 +240,7 @@ const blogupdate = async (req, res) => {
       const { id, theme, title, detail, date, status } = req.body;
       let Blogdata = await blog.findById(id);
       const validationError = validateUpdateBlogData(title, detail);
-      
+
       if (validationError) {
         req.flash("success", validationError);
         return res.redirect("back");
@@ -284,9 +294,11 @@ const blogupdate = async (req, res) => {
             status: status
           });
           if (data) {
+            logger.info("Blog is Updated");
             req.flash("success", "Blog is Updated");
             return res.redirect("/blog");
           } else {
+            logger.warning("Blog is not Updated");
             req.flash("success", "Blog is not Updated");
             return res.redirect("back");
           }
@@ -303,17 +315,21 @@ const blogupdate = async (req, res) => {
 
         });
         if (data) {
+          logger.info("Blog is Updated");
           req.flash("success", "Blog is Updated");
           return res.redirect("/blog");
+        } else {
+          logger.warning("Blog is not Updated");
+          req.flash("success", "Blog is not Updated");
+          return res.redirect("back");
         }
-        req.flash("success", "Blog is not Updated");
-        return res.redirect("back");
       }
     } else {
       return res.redirect('back')
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err);
+    logger.error(err);
     return false;
   }
 };
@@ -335,9 +351,11 @@ const likes = async (req, res) => {
 
           await like.create({ blogId, userId });
 
+          logger.info("Blog liked successfully");
           req.flash("success", "Blog liked successfully");
           return res.redirect("back");
         } else {
+          logger.warning("Blog not found");
           req.flash("success", "Blog not found");
           return res.redirect("back");
         }
@@ -365,18 +383,20 @@ const unlike = async (req, res) => {
         await blog.findByIdAndUpdate(blogId, { $inc: { like: -1 } });
         await like.findOneAndDelete({ blogId, userId });
 
+        logger.info("Blog unliked successfully")
         req.flash("success", "Blog unliked successfully");
         return res.redirect("back");
       } else {
         return res.redirect("back");
       }
     } else {
+      logger.warning("You haven't liked this post")
       req.flash("success", "You haven't liked this post");
       return res.redirect("back");
     }
   } catch (err) {
+    logger.error(err)
     console.log(err);
-    req.flash("success", "An error occurred");
     return res.redirect("back");
   }
 };
@@ -402,15 +422,18 @@ const save = async (req, res) => {
               blogId: blogId,
             });
             if (data) {
+              logger.info("Blog is Saved");
               req.flash("success", "Blog is Saved.");
               return res.redirect("back");
             } else {
+              logger.warning("Blog is not Saved");
               req.flash("success", "Blog is not Saved.");
               return res.redirect("back");
             }
           }
         } else {
-          req.flash("success", "Blog is not available.");
+          logger.warning("Blog is not found");
+          req.flash("success", "Blog is not found.");
           return res.redirect("back");
         }
       }
@@ -419,6 +442,7 @@ const save = async (req, res) => {
       return res.redirect("back");
     }
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -434,17 +458,21 @@ const unsave = async (req, res) => {
       if (saveblog) {
         await saveBlog.findOneAndDelete({ blogId });
 
+        logger.info("Blog unSaved successfully")
         req.flash("success", "Blog unSaved successfully");
         return res.redirect("back");
       } else {
+        logger.warning("Blog is not unSaved")
         req.flash("success", "Blog is not unSaved");
         return res.redirect("back");
       }
     } else {
+      logger.warning("You haven't unSaved this post")
       req.flash("success", "You haven't unSaved this post");
       return res.redirect("back");
     }
   } catch (err) {
+    logger.error(err)
     console.log(err);
     return false;
   }
@@ -469,6 +497,7 @@ const savedblogs = async (req, res) => {
       categorydata
     });
   } catch (err) {
+    logger.error(err)
     console.log(err);
     return false;
   }
@@ -487,9 +516,11 @@ const comments = async (req, res) => {
       });
       if (data) {
         await blog.findByIdAndUpdate(blogId, { $inc: { comment: 1 } });
+        logger.info("comment is Added");
         req.flash("success", "comment is Added");
         return res.redirect("back");
       } else {
+        logger.warning("comment is not Added");
         req.flash("success", "comment is not Added");
         return res.redirect("back");
       }
@@ -498,6 +529,7 @@ const comments = async (req, res) => {
       return res.redirect("back");
     }
   } catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -526,19 +558,26 @@ const searchData = async (req, res) => {
       }
     ]).skip(startIndex).limit(limit);
 
+    if (blogs != false) {
+      return res.render("AdminPanel/index", {
+        categorydata,
+        blogs,
+        totalPages: Math.ceil(blogs.length / limit),
+        page: req.pagination.page,
+        user: req.user,
+        themes,
+        limit
+      });
+    } else {
+      logger.warning("There is no Post of this Category")
+      req.flash('success', 'There is no Post of this Category')
+      return res.redirect('/');
+    }
 
-    return res.render("AdminPanel/index", {
-      categorydata,
-      blogs,
-      totalPages: Math.ceil(blogs.length / limit),
-      page: req.pagination.page,
-      user: req.user,
-      themes,
-      limit
-    });
+
   }
   catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).send("Internal Server Error");
   }
 }
@@ -571,6 +610,7 @@ const DateSearchData = async (req, res) => {
     });
   }
   catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -581,10 +621,11 @@ const getCategoryResult = async (req, res) => {
     const { startIndex, limit, page } = req.pagination;
 
     const categories = await category.findById(req.query.categoryId);
+    let blogData = await blog.find({ categoryId: req.query.categoryId });
     const categorydata = await category.find({});
     let blogs, themes = [];
-
-    if (categories === null) {
+    if (blogData == false) {
+      logger.warning("There is no Post of this Category")
       req.flash('success', 'There is no Post of this Category')
       return res.redirect('back');
     } else {
@@ -607,6 +648,7 @@ const getCategoryResult = async (req, res) => {
     });
   }
   catch (err) {
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -667,6 +709,7 @@ const userPost = async (req, res) => {
       return res.redirect('/')
     }
   } catch (err) {
+    logger.error(err)
     console.log(err);
     return false;
   }
@@ -686,6 +729,7 @@ const blogActive = async (req, res) => {
       return res.redirect('back');
     }
   } catch (err) {
+    logger.log(err)
     console.log(err);
     return false;
   }
@@ -698,14 +742,17 @@ const blogDeactive = async (req, res) => {
       status: 0
     });
     if (blogUpdate) {
+      logger.info("Blog Deactivted Successfully")
       req.flash("success", "Blog Deactivted Successfully");
       return res.redirect('back');
     }
     else {
+      logger.warning("Blog is not Deactivted!")
       req.flash("success", "Blog is not Deactivted!");
       return res.redirect('back');
     }
   } catch (err) {
+    logger.log(err)
     console.log(err);
     return false;
   }
@@ -719,13 +766,16 @@ const adminRole = async (req, res) => {
       role: 'admin'
     });
     if (blogUpdate) {
+      logger.info("Role Updated Successfully")
       req.flash("success", "Role Updated Successfully");
       return res.redirect('back');
     } else {
+      logger.warning("Role is not Updated!")
       req.flash("success", "Role is not Updated!");
       return res.redirect('back');
     }
   } catch (err) {
+    logger.log(err)
     console.log(err);
     return false;
   }
@@ -738,13 +788,16 @@ const userRole = async (req, res) => {
       role: 'user'
     });
     if (blogUpdate) {
+      logger.info("Role Updated Successfully")
       req.flash("success", "Role Updated Successfully");
       return res.redirect('back');
     } else {
+      logger.warning("Role is not Updated!")
       req.flash("success", "Role is not Updated!");
       return res.redirect('back');
     }
   } catch (err) {
+    logger.log(err)
     console.log(err);
     return false;
   }

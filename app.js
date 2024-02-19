@@ -6,14 +6,14 @@ import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
 const app = express();
-const port = 7500;
+const port = process.env.PORT || 7500;
 app.set("view engine", "ejs");
 app.use(express.urlencoded());
 app.use(flash());
@@ -35,7 +35,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 import { routes } from './router/main.js';
 import { userRoutes } from './router/user.js';
 import { categoryRoutes } from './router/category.js';
@@ -46,7 +45,6 @@ app.use("/", userRoutes);
 app.use("/", categoryRoutes);
 app.use("/", blogRoutes);
 
-
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 import { db } from "./config/mongoose.js";
@@ -56,7 +54,7 @@ app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
- 
+
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),

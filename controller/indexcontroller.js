@@ -1,6 +1,6 @@
 import { blog, category } from "./models.js";
 import { scheduleDeletion } from "../middelwares/postdelete.js";
-
+import { logger } from '../logger.js';
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 
 const blogPosts = async (req, res) => {
@@ -34,6 +34,7 @@ const blogPosts = async (req, res) => {
       limit
     });
   } catch (err) {
+    logger.error(err)
     console.log(err);
     return false;
   }
