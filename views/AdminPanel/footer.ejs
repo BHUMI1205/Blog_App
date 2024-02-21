@@ -149,10 +149,29 @@
 <!-- Include Required Prerequisites -->
 <!-- Bootstrap CSS -->
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript code to show toast -->
+<script>
+  // Get references to the button and toast elements
+  const liveToastBtn = document.getElementById('liveToastBtn');
+  const liveToast = document.getElementById('liveToast');
+
+  // Add event listener to the button to show the toast
+  liveToastBtn.addEventListener('click', function() {
+    // Show the toast using Bootstrap's Toast API
+    const bsToast = new bootstrap.Toast(liveToast);
+    bsToast.show();
+  }); 
+</script>
+
 <!-- Bootstrap JS and Popper.js -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 
 <!-- Template Main JS File -->
@@ -164,52 +183,50 @@
 
 
 <script type="text/javascript">
-  $(function() {
+  $(function () {
 
-var startDatePicker = moment().utc();
-var endDatePicker = moment().utc();
+    var startDatePicker = moment().utc();
+    var endDatePicker = moment().utc();
 
-function updateDateRange(start, end) {
-  $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-}
+    function updateDateRange(start, end) {
+      $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
 
-function updateHiddenInputs(start, end) {
-  var isoStartDate = start.toISOString();
-  var isoEndDate = end.toISOString();
+    function updateHiddenInputs(start, end) {
+      var isoStartDate = start.toISOString();
+      var isoEndDate = end.toISOString();
 
-  var startDateObject = new Date(isoStartDate);
-  var endDateObject = new Date(isoEndDate);
-  endDateObject.setUTCHours(23, 59, 59, 0);
-  startDateObject.setUTCHours(0, 0, 0, 0);
+      var startDateObject = new Date(isoStartDate);
+      var endDateObject = new Date(isoEndDate);
+      endDateObject.setUTCHours(23, 59, 59, 0);
+      startDateObject.setUTCHours(0, 0, 0, 0);
 
-  $('input[name="startDate"]').val(startDateObject.toISOString());
-  $('input[name="endDate"]').val(endDateObject.toISOString());
-}
+      $('input[name="startDate"]').val(startDateObject.toISOString());
+      $('input[name="endDate"]').val(endDateObject.toISOString());
+    }
 
-$('#reportrange').daterangepicker({
-  startDate: startDatePicker,
-  endDate: endDatePicker,
-  ranges: {
-    'Today': [moment().utc(), moment().utc()],
-    'Yesterday': [moment().utc().subtract(1, 'days'), moment().utc().subtract(1, 'days')],
-    'Last 7 Days': [moment().utc().subtract(6, 'days'), moment().utc()],
-    'Last 30 Days': [moment().utc().subtract(29, 'days'), moment().utc()],
-    'This Month': [moment().utc().startOf('month'), moment().utc().endOf('month')],
-    'Last Month': [moment().utc().subtract(1, 'month').startOf('month'), moment().utc().subtract(1, 'month').endOf('month')]
-  }
-}, function(start, end) {
-  updateDateRange(start, end);
-  updateHiddenInputs(start, end);
-});
+    $('#reportrange').daterangepicker({
+      startDate: startDatePicker,
+      endDate: endDatePicker,
+      ranges: {
+        'Today': [moment().utc(), moment().utc()],
+        'Yesterday': [moment().utc().subtract(1, 'days'), moment().utc().subtract(1, 'days')],
+        'Last 7 Days': [moment().utc().subtract(6, 'days'), moment().utc()],
+        'Last 30 Days': [moment().utc().subtract(29, 'days'), moment().utc()],
+        'This Month': [moment().utc().startOf('month'), moment().utc().endOf('month')],
+        'Last Month': [moment().utc().subtract(1, 'month').startOf('month'), moment().utc().subtract(1, 'month').endOf('month')]
+      }
+    }, function (start, end) {
+      updateDateRange(start, end);
+      updateHiddenInputs(start, end);
+    });
 
-updateDateRange(startDatePicker, endDatePicker);
-updateHiddenInputs(startDatePicker, endDatePicker);
+    updateDateRange(startDatePicker, endDatePicker);
+    updateHiddenInputs(startDatePicker, endDatePicker);
 
-});
+  });
 
 </script>
-
-
 
 
 <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>

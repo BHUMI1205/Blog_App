@@ -1,7 +1,9 @@
 import validator from "validator";
 
 const validateLoginData = (email, password) => {
-  if (email === "" || password === "") {
+  if (!email || !password) {
+    return "Fill all fields";
+  } else if (email === "" || password === "") {
     return "Fill all fields";
   } else if (validator.isEmail(email) == false) {
     return "Email is not right";
@@ -13,19 +15,27 @@ const validateLoginData = (email, password) => {
 };
 
 const validateEmailData = (email) => {
-  if (validator.isEmail(email) == false) {
+  if (!email) {
+    return "Fill all fields";
+  } else if (email === "") {
+    return "Fill all fields";
+  }else if (validator.isEmail(email) == false) {
     return "Email is not right";
   } else {
     return null;
   }
 };
 
-const validatePasswordData = ( password) => {
-  if ((password.length === 6) === false) {
+const validatePasswordData = (password) => {
+  if (!password) {
+    return "Fill all fields";
+  } else if (password === "") {
+    return "Fill all fields";
+  }else if ((password.length === 6) === false) {
     return "Password length must be 6 digits";
   } else {
     return null;
   }
 };
 
-export{ validateLoginData, validatePasswordData, validateEmailData };
+export { validateLoginData, validatePasswordData, validateEmailData };

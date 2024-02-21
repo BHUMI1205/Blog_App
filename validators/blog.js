@@ -1,11 +1,13 @@
 import validator from "validator";
 
-const validateBlogData = (title, detail) => {
-  if (validator.isEmpty(title) == true) {
+const validateBlogData = (title, detail ,theme) => {
+  if (theme == undefined) {
+    return "theme have to Added";
+  } else if (validator.isEmpty(title) == true) {
     return "Title have to Added";
   } else if (validator.isEmpty(detail) == true) {
     return "Detail have to Added";
-  } else {
+  } else { 
     return null;
   }
 }
@@ -20,8 +22,8 @@ const validateUpdateBlogData = (title, detail) => {
   }
 };
 
-const validateUpdateLikeData = (req,res) => {
-    return "You have to Login First";
+const validateUpdateLikeData = (req, res) => {
+  return "You have to Login First";
 };
 
-export { validateBlogData, validateUpdateBlogData,validateUpdateLikeData };
+export { validateBlogData, validateUpdateBlogData, validateUpdateLikeData };

@@ -9,10 +9,6 @@ const commentschema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
   },
-  bloggerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
-  },
   comment: {
     type: String,
     required: true,

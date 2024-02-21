@@ -4,6 +4,12 @@ import flash from 'connect-flash';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+
+import logger from './logger.js'
+// import userSwaggerSpecs from './api-docs/user-swagger.js';
+// import categorySwaggerSpecs from './api-docs/category-swagger.js';
+import blogSwaggerSpecs from './api-docs/blog-swagger.js';
 
 import dotenv from 'dotenv';
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -11,13 +17,16 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const app = express();
 const port = process.env.PORT || 7500;
 app.set("view engine", "ejs");
-app.use(express.urlencoded());
+app.use(
+  express.urlencoded({ limit: "10mb", extended: true, parameterLimit: 50000 })
+);
 app.use(flash());
 app.use(cookieParser());
+
+app.use(passport.initialize());
 
 app.use(
   session({
@@ -27,8 +36,16 @@ app.use(
   })
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
+function errorHandler(err, req, res, next) {
+  if (err) {
+    logger.error(err)
+    console.log(err);
+  } else {
+    next()
+  }
+}
+
+app.use(errorHandler);
 
 app.use((req, res, next) => {
   res.locals.successMessages = req.flash("success");
@@ -40,15 +57,20 @@ import { userRoutes } from './router/user.js';
 import { categoryRoutes } from './router/category.js';
 import { blogRoutes } from './router/blog.js';
 
+// app.use('/user-docs', swaggerUi.serve, swaggerUi.setup(userSwaggerSpecs));
+// app.use('/category-docs', swaggerUi.serve, swaggerUi.setup(categorySwaggerSpecs));
+app.use('/blog-docs', swaggerUi.serve, swaggerUi.setup(blogSwaggerSpecs));
+
+app.use("/public", express.static(path.join(__dirname, "public")));
+
 app.use("/", routes);
 app.use("/", userRoutes);
 app.use("/", categoryRoutes);
 app.use("/", blogRoutes);
 
-app.use("/public", express.static(path.join(__dirname, "public")));
 
 import { db } from "./config/mongoose.js";
-import { passport } from "./helper/auth.js";
+import passport from "./helper/auth.js";
 
 app.get(
   "/auth/google",

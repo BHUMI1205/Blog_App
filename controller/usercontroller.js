@@ -1,10 +1,19 @@
-import { user } from "./models.js";
+import { user, blog, category } from "./models.js";
 import { validateRegisterData, validateNewUserRegisterData } from "../validators/register.js";
 import { validateLoginData, validateEmailData, validatePasswordData } from "../validators/login.js";
+import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import  bcrypt from 'bcrypt';
-import { logger } from '../logger.js';
+import bcrypt from 'bcrypt';
+import logger  from '../logger.js';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+import OpenAI from "openai";
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 
 const register = (req, res) => {
   return res.render("Login/register");
@@ -40,12 +49,12 @@ const userdata = async (req, res) => {
             var transporter = nodemailer.createTransport({
               service: "gmail",
               auth: {
-                user: "italiyabhumi05@gmail.com",
-                pass: "ozqe tzzy ymjx yyif",
+                user: "bhumiitaliya.crawlapps@gmail.com",
+                pass: "peur yugv vdfl ljpz",
               },
             });
             var mailOptions = {
-              from: "italiyabhumi05@gmail.com",
+              from: "bhumiitaliya.crawlapps@gmail.com",
               to: data.email,
               subject: "Sending Email using Node.js",
               html: `Your registration is completed.`,
@@ -136,13 +145,13 @@ const emailAddress = async (req, res) => {
         var transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
-            user: "italiyabhumi05@gmail.com",
-            pass: "ozqe tzzy ymjx yyif",
+            user: "bhumiitaliya.crawlapps@gmail.com", 
+            pass: "peur yugv vdfl ljpz",
           },
         });
         let otp = Math.floor(Math.random() * 100000);
         var mailOptions = {
-          from: "italiyabhumi05@gmail.com",
+          from: "bhumiitaliya.crawlapps@gmail.com",
           to: req.body.email,
           subject: "Sending Email using Node.js",
           html: `Your OTP for generating a new password: ${otp}. Click <a href="http://localhost:7500/otp">here</a> to reset your password.`,
@@ -181,14 +190,20 @@ const getOtp = (req, res) => {
 
 const otpdata = async (req, res) => {
   try {
-    let cookieotp = req.cookies["forgetpassword"].otp;
-    let otp = req.body.otp;
-    if (cookieotp == otp) {
-      return res.redirect("/change_password");
+    if (req.cookies['foretpassword']) {
+      let cookieotp = req.cookies["forgetpassword"].otp;
+      let otp = req.body.otp;
+      if (cookieotp == otp) {
+        return res.redirect("/change_password");
+      } else {
+        logger.warning("otp is wrong")
+        req.flash("otp", "otp is wrong");
+        return res.redirect("back");
+      }
     } else {
-      logger.warning("otp is wrong")
-      req.flash("otp", "otp is wrong");
-      return res.redirect("back");
+      logger.warning("otp is Expired")
+      req.flash("otp", "otp is Expired");
+      return res.redirect("/login");
     }
   } catch (err) {
     logger.error(err);
@@ -231,7 +246,7 @@ const newpassword = async (req, res) => {
       return res.redirect("back");
     }
   } catch (err) {
-    logger.error(err);
+    logger.error(err); 
     console.log(err);
     return false;
   }
@@ -327,6 +342,42 @@ const newUserdata = async (req, res) => {
   }
 }
 
+const msgToAI = async (req, res) => {
+  try {
+
+    const categorydata = await category.find({});
+    const { startIndex, limit } = req.pagination;
+
+    let blogs = await blog.aggregate(blogPostData).skip(startIndex)
+      .limit(limit);
+
+    const message = req.body.msg;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: message }],
+    });
+
+    const response = completion.choices[0].message.content;
+
+    return res.render("AdminPanel/index", {
+      categorydata,
+      themes: [],
+      blogs,
+      totalPages: Math.ceil(blogs.length / limit),
+      page: req.pagination.page,
+      user: req.user,
+      limit,
+      response
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+
 export {
   register,
   userdata,
@@ -340,5 +391,6 @@ export {
   newpassword,
   logout,
   newUser,
-  newUserdata
+  newUserdata,
+  msgToAI
 };

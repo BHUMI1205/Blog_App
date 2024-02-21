@@ -1,6 +1,6 @@
 import jsonwebtoken from "jsonwebtoken";
 
-import { passport } from "../helper/auth.js";
+import passport  from "../helper/auth.js";
 
 const jwt = (req, res, next) => {
   const token = req.cookies.token;
@@ -18,10 +18,8 @@ const jwt = (req, res, next) => {
       console.log("Invalid Token:", error);
     }
   }
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  return next();
+  
+    return next()
 };
 
 const checkRole = (role) => {

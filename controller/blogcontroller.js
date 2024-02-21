@@ -2,7 +2,7 @@ import fs from "fs";
 import streamifier from "streamifier";
 import { blog, user, like, saveBlog, category, Comment } from "./models.js";
 import { validateBlogData, validateUpdateBlogData, validateUpdateLikeData } from "../validators/blog.js";
-import { logger } from '../logger.js';
+import logger from '../logger.js';
 
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from 'dotenv';
@@ -104,7 +104,7 @@ const blogDataAdd = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
       const { theme, title, detail, date, status } = req.body;
-      const validationError = validateBlogData(title, detail);
+      const validationError = validateBlogData(title, detail, theme);
 
       if (validationError) {
         req.flash("error", validationError);
@@ -118,12 +118,13 @@ const blogDataAdd = async (req, res) => {
               folder: "blogs/image"
             }, (err, result) => {
               if (err) {
+                logger.warning("Error uploading image to Cloudinary");
                 reject(err);
               } else {
+                console.log(result.url);
                 resolve(result);
               }
             });
-
             streamifier.createReadStream(file.buffer).pipe(uploadStream);
           });
         });
@@ -159,15 +160,18 @@ const blogDataAdd = async (req, res) => {
           return res.redirect("/blog");
         }
       }
-    } else {
-      return res.redirect('/');
+    }
+    else {
+      return res.redirect('/')
     }
   } catch (err) {
+    console.log(err);
     logger.error(err);
     req.flash("error", "An error occurred");
     return res.redirect('/');
   }
 };
+
 
 const deleteblog = async (req, res) => {
   try {
@@ -372,27 +376,32 @@ const likes = async (req, res) => {
 
 const unlike = async (req, res) => {
   try {
-    let blogId = req.query.id;
-    let userId = req.user.id;
-    let existingLike = await like.findOne({ blogId, userId });
-    if (existingLike) {
+    if (req.isAuthenticated()) {
+      let blogId = req.query.id;
+      let userId = req.user.id;
+      let existingLike = await like.findOne({ blogId, userId });
+      if (existingLike) {
 
-      let blogs = await blog.findById(blogId);
+        let blogs = await blog.findById(blogId);
 
-      if (blogs) {
-        await blog.findByIdAndUpdate(blogId, { $inc: { like: -1 } });
-        await like.findOneAndDelete({ blogId, userId });
+        if (blogs) {
+          await blog.findByIdAndUpdate(blogId, { $inc: { like: -1 } });
+          await like.findOneAndDelete({ blogId, userId });
 
-        logger.info("Blog unliked successfully")
-        req.flash("success", "Blog unliked successfully");
-        return res.redirect("back");
+          logger.info("Blog unliked successfully")
+          req.flash("success", "Blog unliked successfully");
+          return res.redirect("back");
+        } else {
+          return res.redirect("back");
+        }
       } else {
+        logger.warning("You haven't liked this post")
+        req.flash("success", "You haven't liked this post");
         return res.redirect("back");
       }
-    } else {
-      logger.warning("You haven't liked this post")
-      req.flash("success", "You haven't liked this post");
-      return res.redirect("back");
+    }
+    else {
+      return res.redirect('/')
     }
   } catch (err) {
     logger.error(err)
@@ -511,7 +520,6 @@ const comments = async (req, res) => {
       let data = await Comment.create({
         comment: comment,
         blogId: blogId,
-        bloggerId: req.user.id,
         userId: req.user.id,
       });
       if (data) {
@@ -566,15 +574,14 @@ const searchData = async (req, res) => {
         page: req.pagination.page,
         user: req.user,
         themes,
-        limit
+        limit,
+        response: []
       });
     } else {
       logger.warning("There is no Post of this Category")
       req.flash('success', 'There is no Post of this Category')
       return res.redirect('/');
     }
-
-
   }
   catch (err) {
     logger.error(err);
@@ -582,13 +589,14 @@ const searchData = async (req, res) => {
   }
 }
 
-const DateSearchData = async (req, res) => {
+const dateSearchData = async (req, res) => {
   try {
     const { startIndex, limit } = req.pagination;
 
     const categorydata = await category.find({});
 
     const startDate = new Date(req.body.startDate);
+
     const endDate = new Date(req.body.endDate);
 
     let blogs = await blog.aggregate([
@@ -606,7 +614,8 @@ const DateSearchData = async (req, res) => {
       page: req.pagination.page,
       user: req.user,
       themes: [],
-      limit
+      limit,
+      response: []
     });
   }
   catch (err) {
@@ -644,7 +653,8 @@ const getCategoryResult = async (req, res) => {
       page: page,
       user: req.user,
       themes,
-      limit
+      limit,
+      response: []
     });
   }
   catch (err) {
@@ -702,7 +712,8 @@ const userPost = async (req, res) => {
         page: req.pagination.page,
         user: req.user,
         limit,
-        userData
+        userData,
+        response: []
       });
 
     } else {
@@ -817,7 +828,7 @@ export {
   savedblogs,
   comments,
   searchData,
-  DateSearchData,
+  dateSearchData,
   getCategoryResult,
   userPost,
   blogActive,

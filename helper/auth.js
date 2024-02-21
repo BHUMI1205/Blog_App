@@ -37,4 +37,4 @@ passport.deserializeUser((email, done) => {
   });
 });
 
-export { passport };
+export default passport;

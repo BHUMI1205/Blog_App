@@ -1,7 +1,7 @@
 import streamifier from "streamifier";
 import { category, blog, like, Comment, saveBlog } from "./models.js";
 import { validateCategoryData, validateUpdateCategoryData } from "../validators/category.js";
-import { logger } from '../logger.js';
+import logger from '../logger.js';
 
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from 'dotenv';
@@ -46,52 +46,56 @@ const categoryAdd = async (req, res) => {
 
 const categoryDataAdd = async (req, res) => {
   try {
-    const { theme, detail, status } = req.body;
-    let categoryData = await category.findOne({ theme: theme });
+    if (req.isAuthenticated()) {
+      const { theme, detail, status } = req.body;
+      let categoryData = await category.findOne({ theme: theme });
 
-    if (!categoryData) {
-      const uploadStream = cloudinary.uploader.upload_stream({
-        public_id: Date.now() + Math.floor((Math.random() * 1000000)),
-        resource_type: "image",
-        folder: "blogs/image"
+      if (!categoryData) {
+        const uploadStream = cloudinary.uploader.upload_stream({
+          public_id: Date.now() + Math.floor((Math.random() * 1000000)),
+          resource_type: "image",
+          folder: "blogs/image"
 
-      }, (err, result) => {
-        if (err) {
-          logger.warning("Error uploading image to Cloudinary")
-          req.flash("error", "Error uploading image to Cloudinary");
-          return res.redirect("back");
-        }
+        }, (err, result) => {
+          if (err) {
+            logger.warning("Error uploading image to Cloudinary")
+            req.flash("error", "Error uploading image to Cloudinary");
+            return res.redirect("back");
+          }
 
-        let imageUrl = result.url;
-        const validationError = validateCategoryData(theme, detail, imageUrl);
+          let imageUrl = result.url;
+          const validationError = validateCategoryData(theme, detail, imageUrl);
 
-        if (validationError) {
-          req.flash("error", validationError);
-          return res.redirect("back");
-        } else {
-          let data = category.create({
-            theme: theme,
-            detail: detail,
-            image: imageUrl,
-            public_id: result.public_id,
-            adminId: req.user.id,
-            status: status
-          });
-          if (!data) {
-            logger.warning("Category is not Added")
-            req.flash("error", "Category is not Added");
+          if (validationError) {
+            req.flash("error", validationError);
             return res.redirect("back");
           } else {
-            return res.redirect("/category");
+            let data = category.create({
+              theme: theme,
+              detail: detail,
+              image: imageUrl,
+              public_id: result.public_id,
+              adminId: req.user.id,
+              status: status
+            });
+            if (!data) {
+              logger.warning("Category is not Added")
+              req.flash("error", "Category is not Added");
+              return res.redirect("back");
+            } else {
+              return res.redirect("/category");
+            }
           }
-        }
-      });
+        });
 
-      streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+      } else {
+        logger.warning("Category already exists")
+        req.flash("error", "Category already exists");
+        return res.redirect("back");
+      }
     } else {
-      logger.warning("Category already exists")
-      req.flash("error", "Category already exists");
-      return res.redirect("back");
+      return res.redirect('/')
     }
   } catch (err) {
     logger.error(err);
@@ -117,19 +121,28 @@ const deletecategory = async (req, res) => {
                 const file = cloudinary.uploader.destroy(val.image[i]);
               }
             });
-            let blogData = await blog.deleteMany({ categoryId: req.query.id });
-            let comment = await Comment.deleteMany({ blogId: blogDocuments[0]._id });
-            let Like = await like.deleteMany({ blogId: blogDocuments[0]._id });
-            let Saveblog = await saveBlog.deleteMany({ blogId: blogDocuments[0]._id });
-            if (blogData || comment || Like || Saveblog || "") {
+            console.log(blogDocuments); 
+            if (blogDocuments == true) {
+              let blogData = await blog.deleteMany({ categoryId: req.query.id });
+              let comment = await Comment.deleteMany({ blogId: blogDocuments[0]._id });
+              let Like = await like.deleteMany({ blogId: blogDocuments[0]._id });
+              let Saveblog = await saveBlog.deleteMany({ blogId: blogDocuments[0]._id });
+
+              if (blogData || comment || Like || Saveblog || "") {
+                logger.info("Category is Deleted")
+                req.flash("success", "Blog is Deleted");
+                return res.redirect("back");
+              } else {
+                logger.warning("Category is not Deleted")
+                req.flash("success", "Blog is not Deleted");
+                return res.redirect("back");
+              }
+            } else { 
               logger.info("Category is Deleted")
               req.flash("success", "Blog is Deleted");
               return res.redirect("back");
-            } else {
-              logger.warning("Category is not Deleted")
-              req.flash("success", "Blog is not Deleted");
-              return res.redirect("back");
             }
+
           }
         } else {
           logger.warning("Category is not Deleted")
@@ -171,10 +184,12 @@ const editcategory = async (req, res) => {
 const categoryupdate = async (req, res) => {
   try {
     const { id, theme, detail, status } = req.body;
-    const validationError = validateUpdateCategoryData(theme, detail);
-    if (validationError) {
-      req.flash("success", validationError);
-      return res.redirect("back");
+    if (theme|| detail) {
+      const validationError = validateUpdateCategoryData(theme, detail);
+      if (validationError) {
+        req.flash("success", validationError);
+        return res.redirect("back");
+      }
     } else {
       let categories = await category.findById(id);
 
@@ -201,7 +216,6 @@ const categoryupdate = async (req, res) => {
               public_id: result.public_id,
               adminId: req.user.id,
             });
-            console.log(data);
             if (data) {
               return res.redirect("/category");
             } else {
