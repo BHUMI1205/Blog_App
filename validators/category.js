@@ -16,9 +16,9 @@ const validateCategoryData = (theme, detail, image) => {
 
 const validateUpdateCategoryData = (theme, detail) => {
   if (!validator.isAlpha(theme)) {
-    return "Category is not in string";
-  } else if (!validator.isAlpha(detail)) {
-    return "Description is not in string";
+    return "Category is not in string"; 
+  } else if (validator.isEmpty(detail) == true) {
+    return "Description is not Added";
   } else {
     return null;
   }

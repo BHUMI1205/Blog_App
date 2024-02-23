@@ -22,10 +22,14 @@ const userschema = mongoose.Schema({
     type: String,
     required: true,
   },
+  follower: {
+    type: Number,
+    default: 0,
+  },
   role: {
     type: String,
     enum: ["superAdmin", "admin", "user"],
-    default:"user",
+    default: "user",
   }
 },
   {
@@ -56,4 +60,4 @@ userschema.pre('save', function (next) {
 
 const user = mongoose.model("user", userschema);
 
-export {user};
+export { user };

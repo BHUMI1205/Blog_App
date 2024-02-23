@@ -60,20 +60,10 @@ const blogPostData = [
     },
     {
         $lookup: {
-            from: "saveblogs",
+            from: "followBloggers",
             localField: "_id",
             foreignField: "blogId",
             as: "saves",
-        }
-    },
-    {
-        $addFields: {
-            isLiked: {
-                $in: ["$_id", "$likes.blogId"],
-            },
-            isSaved: {
-                $in: ["$_id", "$saves.blogId"],
-            },
         }
     },
     {
@@ -89,8 +79,6 @@ const blogPostData = [
             theme: "$category.theme",
             username: "$userData.username",
             createdAt: "$createdAt",
-            isLiked: "$isLiked",
-            isSaved: "$isSaved",
             commentData: "$commentData.comment",
             commentUserData: "$commentUserData.username",
         }

@@ -3,18 +3,17 @@ import mongoose from "mongoose";
 const likeschema = mongoose.Schema({
   blogId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "blog", 
-    required: true,
+    ref: "blog",
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
+    ref: "user",
   },
 },
-{
-  timestamps: true
-});
+  {
+    timestamps: true
+  });
 
 const like = mongoose.model("like", likeschema);
 
-export {like};
+export { like };

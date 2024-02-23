@@ -1,4 +1,4 @@
-const blogPostData = [
+const blogPostData = (id) => [
     {
         $match: {
             status: 1,
@@ -14,6 +14,11 @@ const blogPostData = [
     },
     {
         $unwind: "$category",
+    },
+    {
+        $match: {
+            "category.status": 1,
+        }
     },
     {
         $lookup: {
@@ -64,25 +69,41 @@ const blogPostData = [
     },
     {
         $lookup: {
-            from: "saveblogs",
+            from: "savedblogs",
             localField: "_id",
             foreignField: "blogId",
             as: "saves",
         }
     },
     {
+        $lookup: {
+            from: "followbloggers",
+            localField: "userId",
+            foreignField: "bloggerId",
+            as: "follows",
+        }
+    },
+    {
         $addFields: {
             isLiked: {
-                $in: ["$_id", "$likes.blogId"],
+                $in: [id, "$likes.userId"],
+                $in: ["$_id", "$likes.blogId"]
             },
             isSaved: {
-                $in: ["$_id", "$saves.blogId"],
+                $in: [id, "$saves.userId"],
+                $in: ["$_id", "$saves.blogId"]
+
             },
+            isfollowed: {
+                $in: [id, "$follows.followerId"],
+                $in: ["$userId", "$follows.bloggerId"],
+            }
         }
     },
     {
         $project: {
             _id: "$_id",
+            theme: "$theme",
             title: "$title",
             image: "$image",
             detail: "$detail",
@@ -90,16 +111,18 @@ const blogPostData = [
             comment: "$comment",
             status: "$status",
             postDeleteDate: "$postDeleteDate",
-            theme: "$category.theme",
-            username: "$userData.username",
             createdAt: "$createdAt",
+            theme: "$category.theme",
+            bloggerId: "$userData._id",
+            username: "$userData.username",
             isLiked: "$isLiked",
             isSaved: "$isSaved",
+            isfollowed: "$isfollowed",
             commentData: "$commentData.comment",
             commentUserData: "$commentUserData.username",
         }
     }
-]
+];
 
 export {
     blogPostData

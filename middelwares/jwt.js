@@ -1,8 +1,12 @@
 import jsonwebtoken from "jsonwebtoken";
 
-import passport  from "../helper/auth.js";
+import passport from "../helper/auth.js";
+import sessionStorage from "sessionstorage-for-nodejs";
 
 const jwt = (req, res, next) => {
+
+  // Retrieve data
+  // const token = sessionStorage.getItem('token');
   const token = req.cookies.token;
 
   if (token) {
@@ -18,8 +22,8 @@ const jwt = (req, res, next) => {
       console.log("Invalid Token:", error);
     }
   }
-  
-    return next()
+
+  return next()
 };
 
 const checkRole = (role) => {
@@ -31,7 +35,7 @@ const checkRole = (role) => {
         req.flash("success", "Access denied");
         return res.redirect('back');
       }
-    }else{
+    } else {
       return res.redirect('/')
     }
   }

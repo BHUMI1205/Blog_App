@@ -2,11 +2,10 @@ import express from 'express';
 
 const blogRoutes = express.Router();
 
-import { getBlog, blogAdd, blogDataAdd, deleteblog, editblog, blogupdate, likes, unlike, save, unsave, savedblogs, comments, searchData, dateSearchData, getCategoryResult, userPost, blogActive, blogDeactive, adminRole, userRole } from "../controller/blogcontroller.js";
+import { getBlog, blogAdd, blogDataAdd, deleteblog, editblog, blogupdate, blogger, likes, unlike, follow, unfollow, save,unsave,savedblogs, comments, searchData, dateSearchData, getCategoryResult, userPost, blogActive, blogDeactive, adminRole, userRole ,paypalPayment,paypalsuccess,paypalcancel} from "../controller/blogcontroller.js";
 import { checkRole, jwt } from "../middelwares/jwt.js";
 import { multipleimageUpload } from "../middelwares/images.js";
 import { paginationMiddleware } from "../middelwares/pagination.js";
-
 
 
 /**
@@ -152,20 +151,23 @@ blogRoutes.post("/update_blog", jwt, multipleimageUpload, blogupdate);
 
 /**
  * @swagger
- * /like?{id}:
+ * /blogger?{bloggerId}:
  *   get:
- *     summary: like blog .
+ *     summary: Render the blogger's blogs.
  *     parameters:
  *        - in: query 
- *          name: id
+ *          name: username
  *          schema:
- *              type: string
- *          required: true
- *          description: string id of blog to like
+ *              type: ObjectId
+ *          required: true 
+ *          description: string id of blog
  *     responses:
  *       '200':
- *         description: Successfully like the blog.
- */
+ *         description: Successfully rendered the blogger's blog.
+ */ 
+blogRoutes.get("/blogger", jwt, paginationMiddleware, blogger);
+
+
 blogRoutes.get("/like", jwt, likes);
 
 /**
@@ -185,6 +187,42 @@ blogRoutes.get("/like", jwt, likes);
  *         description: Successfully Unlike the blog.
  */
 blogRoutes.get("/unlike", jwt, unlike);
+
+/**
+ * @swagger
+ * /follow?{id}:
+ *   get:
+ *     summary: save blog .
+ *     parameters:
+ *        - in: query 
+ *          name: id
+ *          schema:
+ *              type: string
+ *          required: true
+ *          description: string id of blog to save
+ *     responses:
+ *       '200':
+ *         description: Successfully save the blog.
+ */
+blogRoutes.get("/follow", jwt, follow);
+
+/**
+ * @swagger
+ * /unfollow?{id}:
+ *   get:
+ *     summary: Unsave blog .
+ *     parameters:
+ *        - in: query 
+ *          name: id
+ *          schema:
+ *              type: string
+ *          required: true
+ *          description: string id of blog to Unsave
+ *     responses:
+ *       '200':
+ *         description: Successfully Unsave the blog.
+ */
+blogRoutes.get("/unfollow", jwt, unfollow);
 
 /**
  * @swagger
@@ -412,5 +450,8 @@ blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware,
  *         description: Successfully change the role.
  */
 blogRoutes.get("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, userRole);
+blogRoutes.get("/paypalPayment", jwt, paypalPayment);
+blogRoutes.get("/paypalsuccess", jwt, paypalsuccess);
+blogRoutes.get("/paypalcancel", jwt, paypalcancel);
 
 export { blogRoutes };

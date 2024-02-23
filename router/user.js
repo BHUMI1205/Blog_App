@@ -195,7 +195,6 @@ userRoutes.post("/otpdata", otpdata);
 userRoutes.get("/change_password", changepassword);
 userRoutes.post("/new_password", newpassword);
 
-
 /**
  * @swagger
  * /logout:
@@ -207,7 +206,6 @@ userRoutes.post("/new_password", newpassword);
  */
 
 userRoutes.get("/logout", logout);
-
 /**
  * @swagger
  * /newUser:

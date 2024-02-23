@@ -3,10 +3,12 @@ import { validateRegisterData, validateNewUserRegisterData } from "../validators
 import { validateLoginData, validateEmailData, validatePasswordData } from "../validators/login.js";
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 import jwt from "jsonwebtoken";
+import sessionStorage from "sessionstorage-for-nodejs";
 import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
-import logger  from '../logger.js';
+import logger from '../logger.js';
 import dotenv from 'dotenv';
+
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 import OpenAI from "openai";
@@ -108,7 +110,11 @@ const logindata = async (req, res) => {
           const token = jwt.sign({ payload: userdata }, "logindata", {
             expiresIn: "1hr",
           });
-          res.cookie("token", token, { maxAge: 3600000, httpOnly: true });
+          // Set data
+          // sessionStorage.setItem('token', token);
+
+
+          res.cookie("token", token, { maxAge: 3600000, httpOnly: true, secure: true, sameSite: "Strict" });
           return res.redirect("/");
         } else {
           logger.warning("Password is wrong")
@@ -145,7 +151,7 @@ const emailAddress = async (req, res) => {
         var transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
-            user: "bhumiitaliya.crawlapps@gmail.com", 
+            user: "bhumiitaliya.crawlapps@gmail.com",
             pass: "peur yugv vdfl ljpz",
           },
         });
@@ -246,7 +252,7 @@ const newpassword = async (req, res) => {
       return res.redirect("back");
     }
   } catch (err) {
-    logger.error(err); 
+    logger.error(err);
     console.log(err);
     return false;
   }
@@ -376,7 +382,6 @@ const msgToAI = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-
 
 export {
   register,

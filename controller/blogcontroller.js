@@ -1,7 +1,14 @@
 import fs from "fs";
 import streamifier from "streamifier";
-import { blog, user, like, saveBlog, category, Comment } from "./models.js";
-import { validateBlogData, validateUpdateBlogData, validateUpdateLikeData } from "../validators/blog.js";
+import { blog, user, like, followBlogger, savedBlog, category, Comment } from "./models.js";
+import { scheduleDeletion } from "../middelwares/postdelete.js";
+import { paypal } from "../config/paypal.js";
+
+
+import { Server } from 'socket.io';
+const io = new Server();
+
+import { validateBlogData, validateUpdateBlogData, validateData } from "../validators/blog.js";
 import logger from '../logger.js';
 
 import { v2 as cloudinary } from "cloudinary";
@@ -14,8 +21,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-import { blogPostData } from '../Aggregrate/blogUserPost_aggregation.js';
-import { saveBlogPostData } from '../Aggregrate/saveBlogPost_aggregation.js';
+import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
+import { saveBlogPostData } from '../Aggregrate/savedBlogPost_aggregation.js';
+import { blogPostLoginData } from '../Aggregrate/blogPostLogin_agggregation.js';
+
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -26,6 +35,7 @@ cloudinary.config({
 const getBlog = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
+      let id = req.user.id
       const categorydata = await category.find({});
       const { startIndex, limit } = req.pagination;
       const users = await user.findById(req.user.id);
@@ -34,7 +44,7 @@ const getBlog = async (req, res) => {
           $match: {
             userId: users._id
           }
-        }, ...blogPostData])
+        }, ...blogPostData(id)])
         .skip(startIndex)
         .limit(limit);
 
@@ -172,7 +182,6 @@ const blogDataAdd = async (req, res) => {
   }
 };
 
-
 const deleteblog = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
@@ -186,7 +195,7 @@ const deleteblog = async (req, res) => {
           }
           let comment = await Comment.deleteMany({ blogId: req.query.id });
           let Like = await like.deleteMany({ blogId: req.query.id });
-          let savedBlog = await saveBlog.deleteMany({ blogId: req.query.id });
+          let savedBlog = await followBlogger.deleteMany({ blogId: req.query.id });
           if (comment, Like, savedBlog) {
             logger.info("Blog is Deleted")
             req.flash("success", "Blog is Deleted");
@@ -338,31 +347,86 @@ const blogupdate = async (req, res) => {
   }
 };
 
+const blogger = async (req, res) => {
+  try {
+    const categorydata = await category.find({});
+    const username = await user.findById(req.query.bloggerId);
+
+    const { startIndex, limit } = req.pagination;
+    let post = [], blogs;
+
+    if (req.isAuthenticated()) {
+      let id = req.user.id
+      blogs = await blog
+        .aggregate([{
+          $match: {
+            userId: username._id
+          }
+        }, ...blogPostData(id)])
+        .skip(startIndex)
+        .limit(limit);
+    } else {
+      blogs = await blog
+        .aggregate([{
+          $match: {
+            userId: username._id
+          }
+        }, ...blogPostLoginData])
+        .skip(startIndex)
+        .limit(limit);
+    }
+    for (let i = 0; i < blogs.length; i++) {
+      if (blogs[i].postDeleteDate != null && blogs[i].postDeleteDate != undefined) {
+        let obj = {
+          id: blogs[i]._id,
+          postDeleteDate: blogs[i].postDeleteDate,
+        };
+        post.push(obj);
+      }
+    }
+
+    scheduleDeletion(post);
+
+    return res.render("AdminPanel/index", {
+      categorydata,
+      themes: [],
+      blogs,
+      totalPages: Math.ceil(blogs.length / limit),
+      page: req.pagination.page,
+      user: req.user,
+      limit,
+      response: []
+    });
+
+  } catch (err) {
+    console.log(err);
+    logger.error(err);
+    return false;
+  }
+};
+
 const likes = async (req, res) => {
   try {
-    const validationError = validateUpdateLikeData();
+    const validationError = validateData();
     if (req.isAuthenticated()) {
       let blogId = req.query.id;
       let userId = req.user.id;
-      let existingLike = await like.findOne({ blogId, userId });
-      if (existingLike) {
-        req.flash("success", "You have already liked this post");
+      let blogs = await blog.findById(blogId);
+      let user = await blog.findById(blogId).populate('userId')
+      if (blogs) {
+        await blog.findByIdAndUpdate(blogId, { $inc: { like: 1 } });
+
+        await like.create({ blogId, userId });
+
+        io.to(user.userId._id).emit('notification', 'Someone liked your post!');
+
+        logger.info("Blog liked successfully");
+        req.flash("success", "Blog liked successfully");
         return res.redirect("back");
       } else {
-        let blogs = await blog.findById(blogId);
-        if (blogs) {
-          await blog.findByIdAndUpdate(blogId, { $inc: { like: 1 } });
-
-          await like.create({ blogId, userId });
-
-          logger.info("Blog liked successfully");
-          req.flash("success", "Blog liked successfully");
-          return res.redirect("back");
-        } else {
-          logger.warning("Blog not found");
-          req.flash("success", "Blog not found");
-          return res.redirect("back");
-        }
+        logger.warning("Blog not found");
+        req.flash("success", "Blog not found");
+        return res.redirect("back");
       }
     } else {
       req.flash("success", validationError);
@@ -410,14 +474,77 @@ const unlike = async (req, res) => {
   }
 };
 
+const follow = async (req, res) => {
+  try {
+    const validationError = validateData();
+    if (req.isAuthenticated()) {
+      let bloggerId = req.query.id;
+      let followerId = req.user.id;
+      await user.findByIdAndUpdate(bloggerId, { $inc: { follower: 1 } });
+      let data = await followBlogger.create({ bloggerId, followerId });
+
+      if (data) {
+        logger.info("Blog is followed");
+        req.flash("success", "Blog is followed.");
+        return res.redirect("back");
+      } else {
+        logger.warning("Blog is not followed");
+        req.flash("success", "Blog is not followed.");
+        return res.redirect("back");
+      }
+    } else {
+      req.flash("success", validationError);
+      return res.redirect("back");
+    }
+  } catch (err) {
+    logger.error(err);
+    console.log(err);
+    return false;
+  }
+};
+
+const unfollow = async (req, res) => {
+  try {
+    let bloggerId = req.query.id;
+    let followerId = req.user.id
+    let existingSave = await followBlogger.findOne({ bloggerId, followerId });
+    if (existingSave) {
+
+      let followBloggers = await user.findById(bloggerId);
+
+      if (followBloggers) {
+        await user.findByIdAndUpdate(bloggerId, { $inc: { follower: -1 } });
+        await followBlogger.findOneAndDelete({ bloggerId, followerId });
+
+        logger.info("Blog unfollow successfully")
+        req.flash("success", "Blog unfollow successfully");
+        return res.redirect("back");
+      } else {
+        logger.warning("Blog is not unfollow")
+        req.flash("success", "Blog is not unfollow");
+        return res.redirect("back");
+      }
+    } else {
+      logger.warning("You haven't unfollow this post")
+      req.flash("success", "You haven't unfollow this post");
+      return res.redirect("back");
+    }
+  } catch (err) {
+    logger.error(err)
+    console.log(err);
+    return false;
+  }
+};
+
 const save = async (req, res) => {
   try {
-    const validationError = validateUpdateLikeData();
+    const validationError = validateData();
     if (req.isAuthenticated()) {
+
       let blogId = req.query.id;
       let blogs = await blog.findById(blogId);
-      const saveblog = await saveBlog.findOne({ blogId: blogId });
-      if (saveblog && saveblog.saveUserId == req.user.id) {
+      const saveblog = await savedBlog.findOne({ blogId: blogId });
+      if (saveblog && saveblog.userId == req.user.id) {
         req.flash("success", "Blog Already saved.");
         return res.redirect("back");
       } else {
@@ -426,8 +553,8 @@ const save = async (req, res) => {
             req.flash("success", "This is Your Blog");
             return res.redirect("back");
           } else {
-            const data = await saveBlog.create({
-              saveUserId: req.user.id,
+            const data = await savedBlog.create({
+              userId: req.user.id,
               blogId: blogId,
             });
             if (data) {
@@ -460,12 +587,12 @@ const save = async (req, res) => {
 const unsave = async (req, res) => {
   try {
     let blogId = req.query.id;
-    let existingSave = await saveBlog.findOne({ blogId });
+    let existingSave = await savedBlog.findOne({ blogId });
     if (existingSave) {
-      let saveblog = await blog.findById(blogId);
+      let savedBlogs = await blog.findById(blogId);
 
-      if (saveblog) {
-        await saveBlog.findOneAndDelete({ blogId });
+      if (savedBlogs) {
+        await savedBlog.findOneAndDelete({ blogId });
 
         logger.info("Blog unSaved successfully")
         req.flash("success", "Blog unSaved successfully");
@@ -476,8 +603,8 @@ const unsave = async (req, res) => {
         return res.redirect("back");
       }
     } else {
-      logger.warning("You haven't unSaved this post")
-      req.flash("success", "You haven't unSaved this post");
+      logger.warning("You haven't Saved this post")
+      req.flash("success", "You haven't Saved this post");
       return res.redirect("back");
     }
   } catch (err) {
@@ -492,7 +619,7 @@ const savedblogs = async (req, res) => {
     const { startIndex, limit } = req.pagination;
     const categorydata = await category.find({});
 
-    const blogs = await blog
+    const blogs = await savedBlog
       .aggregate(saveBlogPostData)
       .skip(startIndex)
       .limit(limit);
@@ -514,7 +641,7 @@ const savedblogs = async (req, res) => {
 
 const comments = async (req, res) => {
   try {
-    const validationError = validateUpdateLikeData();
+    const validationError = validateData();
     if (req.isAuthenticated()) {
       const { comment, blogId } = req.body;
       let data = await Comment.create({
@@ -554,17 +681,34 @@ const searchData = async (req, res) => {
     });
 
     const themes = categorySearch.map((val) => val.theme);
+    let blogs;
 
-    let blogs = await blog.aggregate([
-      ...blogPostData, {
-        $match: {
-          $or: [
-            { theme: { $regex: req.body.search } },
-            { title: { $regex: req.body.search } }
-          ]
-        },
-      }
-    ]).skip(startIndex).limit(limit);
+
+    if (req.isAuthenticated()) {
+      let id = req.user.id
+      blogs = await blog.aggregate([
+        ...blogPostData(id), {
+          $match: {
+            $or: [
+              { theme: { $regex: req.body.search } },
+              { title: { $regex: req.body.search } }
+            ]
+          },
+        }
+      ]).skip(startIndex).limit(limit);
+    }
+    else {
+      blogs = await blog.aggregate([
+        ...blogPostLoginData, {
+          $match: {
+            $or: [
+              { theme: { $regex: req.body.search } },
+              { title: { $regex: req.body.search } }
+            ]
+          },
+        }
+      ]).skip(startIndex).limit(limit);
+    }
 
     if (blogs != false) {
       return res.render("AdminPanel/index", {
@@ -598,13 +742,13 @@ const dateSearchData = async (req, res) => {
     const startDate = new Date(req.body.startDate);
 
     const endDate = new Date(req.body.endDate);
-
+    let id = req.user.id
     let blogs = await blog.aggregate([
       {
         $match: {
           createdAt: { $gte: startDate, $lte: endDate }
         }
-      }, ...blogPostData]).skip(startIndex)
+      }, ...blogPostData(id)]).skip(startIndex)
       .limit(limit);
 
     return res.render("AdminPanel/index", {
@@ -617,6 +761,7 @@ const dateSearchData = async (req, res) => {
       limit,
       response: []
     });
+
   }
   catch (err) {
     logger.error(err);
@@ -633,17 +778,29 @@ const getCategoryResult = async (req, res) => {
     let blogData = await blog.find({ categoryId: req.query.categoryId });
     const categorydata = await category.find({});
     let blogs, themes = [];
+
+
     if (blogData == false) {
       logger.warning("There is no Post of this Category")
       req.flash('success', 'There is no Post of this Category')
       return res.redirect('back');
     } else {
-      blogs = await blog.aggregate([
-        {
-          $match: {
-            categoryId: categories._id,
-          },
-        }, ...blogPostData]).skip(startIndex).limit(limit);
+      if (req.isAuthenticated()) {
+        let id = req.query.id
+        blogs = await blog.aggregate([
+          {
+            $match: {
+              categoryId: categories._id,
+            },
+          }, ...blogPostData(id)]).skip(startIndex).limit(limit);
+      } else {
+        blogs = await blog.aggregate([
+          {
+            $match: {
+              categoryId: categories._id,
+            },
+          }, ...blogPostLoginData]).skip(startIndex).limit(limit);
+      }
     }
 
     return res.render("AdminPanel/index", {
@@ -814,6 +971,69 @@ const userRole = async (req, res) => {
   }
 }
 
+const paypalPayment = async (req, res) => {
+  try {
+    let userId = req.query.userId;
+    let userBlog = await user.findOne({ _id: userId });
+
+    const name = userBlog.username;
+
+    const paymentData = {
+      "intent": "SALE",
+      "payer": {
+        "payment_method": "paypal"
+      },
+      "redirect_urls": {
+        "return_url": "http://localhost:7800/paypalsuccess",
+        "cancel_url": "http://localhost:7800/paypalcancel"
+      },
+      "transactions": [{
+        "item_list": {
+          "items": [{
+            "name": name,
+            "currency": "USD",
+            "quantity": 1,
+            "price": 2
+          }]
+        },
+        "amount": {
+          "currency": "USD",
+          "total": "2"
+        },
+        "description": "Payment using PayPal"
+      }]
+    };
+
+    paypal.payment.create(paymentData, (err, payment) => {
+      if (err) {
+        console.log(err.response);
+        return res.status(500).send("Error creating PayPal payment");
+      } else {
+        for (let i = 0; i < payment.links.length; i++) {
+          if (payment.links[i].rel === "approval_url") {
+            return res.redirect(payment.links[i].href);
+          }
+        }
+        return res.status(500).send("Approval URL not found in PayPal response");
+      }
+    });
+  }
+  catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+const paypalsuccess = async (req, res) => {
+  req.flash("success", "transaction completed")
+  return res.redirect('/')
+}
+
+const paypalcancel = async (req, res) => {
+  req.flash("success", "transaction canceled")
+  return res.redirect('/')
+}
+
 export {
   getBlog,
   blogAdd,
@@ -821,10 +1041,13 @@ export {
   deleteblog,
   editblog,
   blogupdate,
+  blogger,
   likes,
   unlike,
   save,
   unsave,
+  follow,
+  unfollow,
   savedblogs,
   comments,
   searchData,
@@ -834,5 +1057,8 @@ export {
   blogActive,
   blogDeactive,
   adminRole,
-  userRole
+  userRole,
+  paypalPayment,
+  paypalsuccess,
+  paypalcancel
 };

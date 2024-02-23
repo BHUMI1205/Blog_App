@@ -16,9 +16,12 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
 
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet" />
 
   <!-- Vendor CSS Files -->
   <link href="public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
@@ -57,66 +60,64 @@
             <li></li>Categories</li>
           </a>
           <% if (user) { %>
-          <a href="/blog">
-            <li>My Blog</li>
-          </a>
-          <%}%>
-          <% if(user && user.role === "superAdmin"){%>
-            <a href="/newUser">
-              <li>Add New User</li>
+            <a href="/blog">
+              <li>My Blog</li>
             </a>
             <%}%>
-          </ul>
-        </nav>
-        <!-- .navbar -->
-        <form action="/searchData" method="post" class="form-inline">
-          <input
-            class="form-control mr-sm-2"
-            type="search"
-            placeholder="Search"
-            name="search"
-          />
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-            Search
-          </button>
-        </form>
+              <% if(user && user.role==="superAdmin" ){%>
+                <a href="/newUser">
+                  <li>Add New User</li>
+                </a>
+                <%}%>
+        </ul>
+      </nav>
+      <!-- .navbar -->
+      <form action="/searchData" method="post" class="form-inline">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" name="search" />
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+          Search
+        </button>
+      </form>
 
-          <div class="dropdown ms-5">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Select Category
-            </button>
-            <div class="dropdown-menu" aria-labelledby="categoryDropdown">
-              <a class="dropdown-item" href="/">All Category</a>
-              <% categorydata.map((val) => { %>
-              <a class="dropdown-item" href="/getCategoryResult?categoryId=<%=val._id%>"><%= val.theme %></a>
-              <% }) %>
-            </div>
-          </div>
-        <% if (user != undefined ) { %>
+      <div class="dropdown ms-5">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          Select Category
+        </button>
+        <div class="dropdown-menu" aria-labelledby="categoryDropdown">
+          <a class="dropdown-item" href="/">All Category</a>
+          <% categorydata.map((val)=> { %>
+            <a class="dropdown-item" href="/getCategoryResult?categoryId=<%=val._id%>">
+              <%= val.theme %>
+            </a>
+            <% }) %>
+        </div>
+      </div>
+      <% if (user !=undefined ) { %>
 
-          <div class="d-flex">
-            <form class="form-inline d-flex" method="post" action="/dateSearchData">
-              <input type="hidden" name="startDate" />
-              <input type="hidden" name="endDate" />
-              <div id="reportrange" class="pull-right" style="
+        <div class="d-flex">
+          <form class="form-inline d-flex" method="post" action="/dateSearchData">
+            <input type="hidden" name="startDate" />
+            <input type="hidden" name="endDate" />
+            <div id="reportrange" class="pull-right" style="
                 background: #fff;
                 cursor: pointer;
                 padding: 5px 10px;
                 border: 1px solid #ccc;
               ">
-                <i class="bi bi-calendar"></i>&nbsp; <span></span>
-                <b class="caret"></b>
-              </div>
-              <button class="btn btn-outline-success my-2 ms-2 my-sm-0" type="submit">
-                Search
-              </button>
-            </form>
-          </div>
+              <i class="bi bi-calendar"></i>&nbsp; <span></span>
+              <b class="caret"></b>
+            </div>
+            <button class="btn btn-outline-success my-2 ms-2 my-sm-0" type="submit">
+              Search
+            </button>
+          </form>
+        </div>
 
-          <div class="position-relative d-flex align-items-center">
-            <a href="/logout" class="logout-link">Logout <i class="bi bi-box-arrow-right"></i></a>
-          </div>
-          <% } else { %>
+        <div class="position-relative d-flex align-items-center">
+          <a href="/logout" class="logout-link">Logout <i class="bi bi-box-arrow-right"></i></a>
+        </div>
+        <% } else { %>
           <div class="position-relative d-flex align-items-center">
             <a href="/login" class="logout-link">Login</a>
           </div>

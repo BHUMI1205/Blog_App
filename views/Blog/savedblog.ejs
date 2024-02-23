@@ -14,7 +14,7 @@
         <%blogs.map((val)=>{%>
         <div class="col-lg-4">
           <div class="post-entry-1 lg">
-            <%let images = val.image%>
+            <%let images = val.image%> 
             <%if(images.length>1){%>
             <%for(let i=0;i< images.length ; i++){%>
             <a href="#"><img
@@ -40,13 +40,13 @@
               <div class="d-flex my-3">
                 <% if (val.isLiked == true) { %>
                 <a href="/unlike?id=<%= val.blogId %>" class="mx-2 text-danger"><span
-                    class="bi-heart-fill"></span></a>
+                    class="bi-heart-fill"></span><%=val.like%></a>
                 <% } else{%>
                 <a href="/like?id=<%= val.blogId %>" class="mx-2 text-danger"><span
-                    class="bi-heart"></span></a>
+                    class="bi-heart"></span><%=val.like%></a>
                 <%}%>
-                <a href="#" class="mx-2 text-danger"><span class="bi-chat"></span></a>
-                <a href="/unsave?id=<%= val.blogId %>" class="mx-2 text-danger "><span
+                <a href="#" class="mx-2 text-danger"><span class="bi-chat"></span><%=val.comment%></a>
+                <a href="/unfollow?id=<%= val.blogId %>" class="mx-2 text-danger "><span
                     class="bi-trash"></span></a>
 
               </div>

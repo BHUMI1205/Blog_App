@@ -1,5 +1,5 @@
 import { blog } from "../model/blog.js";
-import { saveBlog } from "../model/saveblog.js";
+import { followBlogger } from "../model/followBlogger.js";
 import { like } from "../model/like.js";
 import { Comment } from "../model/comments.js";
 
@@ -37,7 +37,7 @@ const scheduleDeletion = async (post) => {
               }
               let comment = await Comment.deleteMany({ blogId: post[i].id });
               let Like = await like.deleteMany({ blogId: post[i].id });
-              let savedBlog = await saveBlog.deleteMany({ blogId: post[i].id });
+              let savedBlog = await followBlogger.deleteMany({ blogId: post[i].id });
               if (comment, Like, savedBlog) {
                 console.log("Blog is Deleted");
                 req.flash("success", "Blog is Deleted");

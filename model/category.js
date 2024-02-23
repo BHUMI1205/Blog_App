@@ -19,7 +19,7 @@ const categoryschema = mongoose.Schema({
     },
     adminId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
+        ref: "user",
     },
     status: {
         type: Number,

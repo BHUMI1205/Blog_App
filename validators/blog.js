@@ -22,8 +22,8 @@ const validateUpdateBlogData = (title, detail) => {
   }
 };
 
-const validateUpdateLikeData = (req, res) => {
+const validateData = (req, res) => {
   return "You have to Login First";
 };
 
-export { validateBlogData, validateUpdateBlogData, validateUpdateLikeData };
+export { validateBlogData, validateUpdateBlogData, validateData };

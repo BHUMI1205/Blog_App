@@ -23,7 +23,7 @@ const blogSchema = mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
+    ref: "user",
   },
   like: {
     type: Number,

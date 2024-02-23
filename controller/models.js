@@ -2,7 +2,8 @@ import { user } from "../model/user.js";
 import { category } from "../model/category.js";
 import { blog } from "../model/blog.js";
 import { like } from "../model/like.js";
-import { saveBlog } from "../model/saveblog.js";
+import { savedBlog } from "../model/savedBlog.js";
+import { followBlogger } from "../model/followBlogger.js";
 import { Comment } from "../model/comments.js";
 
 export {
@@ -10,6 +11,7 @@ export {
   category,
   blog,
   like,
-  saveBlog,
+  savedBlog,
+  followBlogger,
   Comment
 };

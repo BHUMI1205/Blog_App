@@ -101,7 +101,7 @@ describe('blogs', () => {
     });
 
     it('save blog', (done) => {
-        request.get('http://localhost:7800/save', (err, res, body) => {
+        request.get('http://localhost:7800/follow', (err, res, body) => {
             if (err) {
                 done(err)
             } else {
@@ -113,7 +113,7 @@ describe('blogs', () => {
     });
 
     it('unsave blog', (done) => {
-        request.get('http://localhost:7800/unsave', (err, res, body) => {
+        request.get('http://localhost:7800/unfollow', (err, res, body) => {
             if (err) {
                 done(err)
             } else {
@@ -125,7 +125,7 @@ describe('blogs', () => {
     });
 
     it('saved blog', (done) => {
-        request.get('http://localhost:7800/saveblogs', (err, res, body) => {
+        request.get('http://localhost:7800/followBloggers', (err, res, body) => {
             if (err) {
                 done(err)
             } else {

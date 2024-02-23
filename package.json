@@ -2,7 +2,6 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "chai": "^5.1.0",
-    "cjs-to-es6": "^2.0.1",
     "cloudinary": "^2.0.1",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.6",
@@ -20,7 +19,10 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
+    "paypal-rest-sdk": "^1.8.1",
     "request": "^2.88.2",
+    "sessionstorage-for-nodejs": "^1.0.2",
+    "socket.io": "^4.7.4",
     "streamifier": "^0.1.1",
     "validator": "^13.11.0",
     "winston": "^3.11.0"
