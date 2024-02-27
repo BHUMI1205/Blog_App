@@ -86,17 +86,13 @@ const blogPostData = (id) => [
     {
         $addFields: {
             isLiked: {
-                $in: [id, "$likes.userId"],
-                $in: ["$_id", "$likes.blogId"]
+                $in: [id, "$likes.userId"]
             },
             isSaved: {
-                $in: [id, "$saves.userId"],
-                $in: ["$_id", "$saves.blogId"]
-
+                $in: [id, "$saves.userId"]
             },
             isfollowed: {
-                $in: [id, "$follows.followerId"],
-                $in: ["$userId", "$follows.bloggerId"],
+                $in: [id, "$follows.followerId"]
             }
         }
     },

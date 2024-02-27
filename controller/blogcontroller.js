@@ -4,10 +4,6 @@ import { blog, user, like, followBlogger, savedBlog, category, Comment } from ".
 import { scheduleDeletion } from "../middelwares/postdelete.js";
 import { paypal } from "../config/paypal.js";
 
-
-import { Server } from 'socket.io';
-const io = new Server();
-
 import { validateBlogData, validateUpdateBlogData, validateData } from "../validators/blog.js";
 import logger from '../logger.js';
 
@@ -21,16 +17,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
+import { blogUserPostData } from '../Aggregrate/blogUserPost_aggregation.js';
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 import { saveBlogPostData } from '../Aggregrate/savedBlogPost_aggregation.js';
 import { blogPostLoginData } from '../Aggregrate/blogPostLogin_agggregation.js';
-
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 const getBlog = async (req, res) => {
   try {
@@ -44,7 +34,7 @@ const getBlog = async (req, res) => {
           $match: {
             userId: users._id
           }
-        }, ...blogPostData(id)])
+        }, ...blogUserPostData])
         .skip(startIndex)
         .limit(limit);
 
@@ -67,6 +57,8 @@ const getBlog = async (req, res) => {
             _id: "$_id",
             username: "$username",
             blogId: "$userBlogs._id",
+            follower: "$follower",
+            following: "$following",
             role: "$role"
           },
         },
@@ -412,17 +404,19 @@ const likes = async (req, res) => {
       let blogId = req.query.id;
       let userId = req.user.id;
       let blogs = await blog.findById(blogId);
-      let user = await blog.findById(blogId).populate('userId')
       if (blogs) {
-        await blog.findByIdAndUpdate(blogId, { $inc: { like: 1 } });
+        if (blogs.userId == userId) {
+          logger.info("This is your Blog");
+          req.flash("success", "This is your Blog");
+          return res.redirect("back");
+        } else {
+          await blog.findByIdAndUpdate(blogId, { $inc: { like: 1 } });
+          await like.create({ blogId, userId });
 
-        await like.create({ blogId, userId });
-
-        io.to(user.userId._id).emit('notification', 'Someone liked your post!');
-
-        logger.info("Blog liked successfully");
-        req.flash("success", "Blog liked successfully");
-        return res.redirect("back");
+          logger.info("Blog liked successfully");
+          req.flash("success", "Blog liked successfully");
+          return res.redirect("back");
+        }
       } else {
         logger.warning("Blog not found");
         req.flash("success", "Blog not found");
@@ -481,6 +475,8 @@ const follow = async (req, res) => {
       let bloggerId = req.query.id;
       let followerId = req.user.id;
       await user.findByIdAndUpdate(bloggerId, { $inc: { follower: 1 } });
+      await user.findByIdAndUpdate(followerId, { $inc: { following: 1 } });
+
       let data = await followBlogger.create({ bloggerId, followerId });
 
       if (data) {
@@ -514,6 +510,7 @@ const unfollow = async (req, res) => {
 
       if (followBloggers) {
         await user.findByIdAndUpdate(bloggerId, { $inc: { follower: -1 } });
+        await user.findByIdAndUpdate(followerId, { $inc: { following: -1 } });
         await followBlogger.findOneAndDelete({ bloggerId, followerId });
 
         logger.info("Blog unfollow successfully")

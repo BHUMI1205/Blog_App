@@ -1,13 +1,18 @@
 <%- include('../AdminPanel/header') %>
 
 <main id="main" class="main my-5 py-5">
+    <a href="/blog" class="m-5">
+        <button type="button" class="btn btn-outline-dark mt-5 ms-5"><span class="bi-arrow-left"></span></button>
+      </a>
     <div class="d-flex align-items-center justify-content-center">
+        
         <div class="col-6 offset-xl-1 mt-5 w-25 card p-5 my-5">
             <% if (successMessages.length>0) { %>
             <div class="alert alert-success">
                 <%=successMessages%>
             </div>
             <% } %>
+            
             <form method="post" action="/update_blog"
                 enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<%=blog._id%>">

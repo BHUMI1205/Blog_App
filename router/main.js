@@ -9,6 +9,5 @@ import {paginationMiddleware} from "../middelwares/pagination.js";
 
 
 routes.get("/", jwt, paginationMiddleware, blogPosts);
-routes.post("/", jwt, paginationMiddleware, blogPosts);
 
 export { routes };

@@ -350,7 +350,6 @@ const newUserdata = async (req, res) => {
 
 const msgToAI = async (req, res) => {
   try {
-
     const categorydata = await category.find({});
     const { startIndex, limit } = req.pagination;
 
@@ -358,6 +357,7 @@ const msgToAI = async (req, res) => {
       .limit(limit);
 
     const message = req.body.msg;
+    console.log(message);
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',

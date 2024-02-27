@@ -1,164 +1,226 @@
 <%- include('../AdminPanel/header') %>
 
-<main id="main" class="main my-5 py-5">
-  <% if(user.role != "user"){ %>
-    <% if (successMessages.length>0) { %>
-      <div class="alert alert-success">
-        <%=successMessages%>
-      </div>
-      <% } %> 
-  <table class="table w-25 mx-auto my-5">
-    <thead>
-      <tr>
-        <th scope="col" class="align-middle text-center">No.</th>
-        <th scope="col" class="align-middle text-center">User Name</th>
-        <th scope="col" class="align-middle text-center">User Blogs</th>
-        <th scope="col" class="align-middle text-center">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <%userData.map((val,i)=>{i++%>
-      <tr onclick="window.location='/userPost?userId=<%=val._id%>'">
-        <td class="align-middle text-center"><%=i%></td>
-        <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6"><%=val.username%></td>
-        <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6"><%=val.blogId.length%></td>
-        <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6">
-          <%if(val.role == "admin"){%>
-            <a href="/userRole?id=<%=val._id%>"><button class="btn btn-primary me-2 text-center align-middle">Make User</button></a>
-            <%}else{%>
-              <a href="/adminRole?id=<%=val._id%>"><button class="btn btn-primary me-2 text-center align-middle">Make Admin</button></a>
-              <%}%>
-        </td>
-      </tr>
-      <%})%>
-    </tbody>
-  </table>
-  <%}else{%>
-  <a href="/blog_Add">
-    <button type="button" class="btn btn-outline-primary mb-5 text-uppercase fw-bold">Add
-      Blogs</button>
-  </a>
-
-  <a href="/savedblogs">
-    <button type="button" class="btn btn-outline-primary mb-5 text-uppercase fw-bold">Saved
-      Blogs</button>
-  </a>
-  <section id="posts" class="posts">
-    <div class="container" data-aos="fade-up">
-      <div class="row g-5">
-        <% if (successMessages.length>0) { %>
+  <main id="main" class="main my-5 py-5">
+    <% if(user.role !="user" ){ %>
+      <% if (successMessages.length>0) { %>
         <div class="alert alert-success">
           <%=successMessages%>
         </div>
         <% } %>
-        <%blogs.map((val)=>{%>
-        <input type="hidden" name="id" value="<%=val._id%>">
-        <div class="col-lg-4">
-          <div class="post-entry-1 lg">
-            <%let images = val.image%>
-            <%if(images.length>1){%>
-            <%for(let i=0;i< images.length ; i++){%>
-            <a href="#"><img src="<%=images[i]%>" alt class="img-fluid" width="45%" height="auto"></a>
-            <%}%> 
-            <%}else{%>
-            <a href="#"><img src="<%=val.image%>" class="img-fluid" style="width: 100%;height:180px;object-fit:cover;"></a>
-            <%}%>
-            <div class="post-meta d-flex justify-content-between">
-          <div>    <span class="date"><%=val.theme%></span>
-            <span class="mx-1">&bullet;</span> <span><%=val.createdAt.toDateString()%></span>
-          </div>
-          <%if(val.status == 0){%>
-          <a href="/blogActive?id=<%=val._id%>"><button class="btn btn-primary me-2">Active</button></a>
+          <table class="table w-50 mx-auto my-5">
+            <thead>
+              <tr>
+                <th scope="col" class="align-middle text-center">No.</th>
+                <th scope="col" class="align-middle text-center">User Name</th>
+                <th scope="col" class="align-middle text-center">User Blogs</th>
+                <th scope="col" class="align-middle text-center">User Followers</th>
+                <th scope="col" class="align-middle text-center">User following</th>
+                <th scope="col" class="align-middle text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%userData.map((val,i)=>{i++%>
+                <tr onclick="window.location='/userPost?userId=<%=val._id%>'">
+                  <td class="align-middle text-center">
+                    <%=i%>
+                  </td>
+                  <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6">
+                    <%=val.username%>
+                  </td>
+                  <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6">
+                    <%=val.blogId.length%>
+                  </td>
+                  <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6">
+                    <%=val.follower%>
+                  </td>
+                  <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6">
+                    <%=val.following%>
+                  </td>
+                  <td class="align-middle text-center text-uppercase text-dark fw-bold fs-6">
+                    <%if(val.role=="admin" ){%>
+                      <a href="/userRole?id=<%=val._id%>"><button
+                          class="btn btn-primary me-2 text-center align-middle">Make User</button></a>
+                      <%}else{%>
+                        <a href="/adminRole?id=<%=val._id%>"><button
+                            class="btn btn-primary me-2 text-center align-middle">Make Admin</button></a>
+                        <%}%>
+                  </td>
+                </tr>
+                <%})%>
+            </tbody>
+          </table>
           <%}else{%>
-            <a href="/blogDeactive?id=<%=val._id%>"><button class="btn btn-primary me-2">Deactive</button></a>
-          <%}%>
-        </div>
-        <h3><a href="#"><%=val.title%></a></h3>
-        <p class="mb-4 d-block"><%=val.detail%></p>
-        <div class="d-flex align-items-center author justify-content-between">
-          <div class="name d-flex">
-            <p class="m-0 p-0 text-capitalize">Created By
-            <h6 class="d-inline text-capitalize ms-1"> <%=val.username%></h6>
-            </p>
-          </div>
-          <div class="d-flex align-items-center ">
-            <% if (val.isLiked) { %>
-            <a href="/unlike?id=<%= val._id %>" class="mx-2 text-danger"><%=val.like%><span class="bi-heart-fill"></span></a>
-            <% } else{%>
-            <a href="/like?id=<%= val._id %>" class="mx-2 text-danger"><%=val.like%><span class="bi-heart"></span></a>
-            <%}%>
-                <a href="/blog"
-              class="mx-2 text-danger comment-btn"
-              data-post-id="<%= val._id %>" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_<%=val._id%>"><%=val.comment%><span class="bi-chat"></span></a>
-            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_<%=val._id%>" aria-labelledby="offcanvasRightLabel">
-              <div class="offcanvas-header">
-                <h5 id="offcanvasRightLabel">Comments</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-              </div>
-              <div class="offcanvas-body">
-                <h3>Add Comment</h3>
-                <form action="/comment?id=<%= val._id %>" method="post">
-                  <div id="comment-section">
-                    <input type="hidden" value="<%=val._id%>" name="blogId">
-                    <textarea name="comment" placeholder="Leave a comment" class="w-100"></textarea>
-                    <button type="submit">Add Comment</button>
-                  </div>
-                </form>
-                <br><br>
-                <div class="card mb-3">
-                  <div class="card-body">
-                    <p class="card-text"><%= val.commentData %></p>
-                    <p class="text-muted text-capitalize mb-0">Written By: <%= val.commentUserData %></p>
-                  </div>
+            <a href="/blog_Add">
+              <button type="button" class="btn btn-outline-primary mb-5 text-uppercase fw-bold">Add
+                Blogs</button>
+            </a>
+
+            <a href="/savedblogs">
+              <button type="button" class="btn btn-outline-primary mb-5 text-uppercase fw-bold">Saved
+                Blogs</button>
+            </a>
+
+            <div class="d-flex align-items-center">
+              <%blogs.map((val)=>{%>
+                <button class="btn btn-outline-none text-uppercase fw-bold">
+                  Followers</button>
+                <%=val.follower%>
+
+                  <button class="btn btn-outline-none text-uppercase fw-bold">
+                    Following</button>
+                  <%=val.following%>
+                    <%})%>
+            </div>
+
+
+            <section id="posts" class="posts">
+              <div class="container" data-aos="fade-up">
+                <div class="row g-5">
+                  <% if (successMessages.length>0) { %>
+                    <div class="alert alert-success">
+                      <%=successMessages%>
+                    </div>
+                    <% } %>
+                      <%blogs.map((val)=>{%>
+
+
+                        <input type="hidden" name="id" value="<%=val._id%>">
+                        <div class="col-lg-4">
+                          <div class="post-entry-1 lg">
+                            <%let images=val.image%>
+                              <%if(images.length>1){%>
+                                <%for(let i=0;i< images.length ; i++){%>
+                                  <a href="#"><img src="<%=images[i]%>" alt class="img-fluid" width="45%"
+                                      height="auto"></a>
+                                  <%}%>
+                                    <%}else{%>
+                                      <a href="#"><img src="<%=val.image%>" class="img-fluid"
+                                          style="width: 100%;height:180px;object-fit:cover;"></a>
+                                      <%}%>
+                                        <div class="post-meta d-flex justify-content-between">
+                                          <div> <span class="date">
+                                              <%=val.theme%>
+                                            </span>
+                                            <span class="mx-1">&bullet;</span> <span>
+                                              <%=val.createdAt.toDateString()%>
+                                            </span>
+                                          </div>
+                                          <%if(val.status==0){%>
+                                            <a href="#"><button class="btn btn-primary me-2">Deactive</button></a>
+                                            <%}else{%>
+                                              <a href="#"><button class="btn btn-primary me-2">Active</button></a>
+                                              <%}%>
+                                        </div>
+                                        <h3><a href="#">
+                                            <%=val.title%>
+                                          </a></h3>
+                                        <p class="mb-4 d-block">
+                                          <%=val.detail%>
+                                        </p>
+                                        <div class="d-flex align-items-center author justify-content-between">
+                                          <div class="name d-flex">
+                                            <p class="m-0 p-0 text-capitalize">Created By
+                                            <h6 class="d-inline text-capitalize ms-1">
+                                              <%=val.username%>
+                                            </h6>
+                                            </p>
+                                          </div>
+                                          <div class="d-flex align-items-center ">
+                                            <% if (val.isLiked) { %>
+                                              <a href="/unlike?id=<%= val._id %>" class="mx-2 text-danger">
+                                                <%=val.like%><span class="bi-heart-fill"></span>
+                                              </a>
+                                              <% } else{%>
+                                                <a href="/like?id=<%= val._id %>" class="mx-2 text-danger">
+                                                  <%=val.like%><span class="bi-heart"></span>
+                                                </a>
+                                                <%}%>
+                                                  <a href="/blog" class="mx-2 text-danger comment-btn"
+                                                    data-post-id="<%= val._id %>" data-bs-toggle="offcanvas"
+                                                    data-bs-target="#offcanvasRight_<%=val._id%>">
+                                                    <%=val.comment%><span class="bi-chat"></span>
+                                                  </a>
+                                                  <div class="offcanvas offcanvas-end" tabindex="-1"
+                                                    id="offcanvasRight_<%=val._id%>"
+                                                    aria-labelledby="offcanvasRightLabel">
+                                                    <div class="offcanvas-header">
+                                                      <h5 id="offcanvasRightLabel">Comments</h5>
+                                                      <button type="button" class="btn-close text-reset"
+                                                        data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="offcanvas-body">
+                                                      <h3>Add Comment</h3>
+                                                      <form action="/comment?id=<%= val._id %>" method="post">
+                                                        <div id="comment-section">
+                                                          <input type="hidden" value="<%=val._id%>" name="blogId">
+                                                          <textarea name="comment" placeholder="Leave a comment"
+                                                            class="w-100"></textarea>
+                                                          <button type="submit">Add Comment</button>
+                                                        </div>
+                                                      </form>
+                                                      <br><br>
+                                                      <div class="card mb-3">
+                                                        <div class="card-body">
+                                                          <p class="card-text">
+                                                            <%= val.commentData %>
+                                                          </p>
+                                                          <p class="text-muted text-capitalize mb-0">Written By:
+                                                            <%= val.commentUserData %>
+                                                          </p>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                          </div>
+                                        </div>
+                                        <div class="d-flex mt-3">
+                                          <a href="/edit_blog?id=<%=val._id%>"><button
+                                              class="btn btn-warning me-2">Edit</button></a>
+                                          <a href="/delete_blog?id=<%=val._id%>"><button
+                                              class="btn btn-danger">Delete</button></a>
+                                        </div>
+                          </div>
+                        </div>
+                        <%})%>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="d-flex mt-3">
-          <a href="/edit_blog?id=<%=val._id%>"><button class="btn btn-warning me-2">Edit</button></a>
-          <a href="/delete_blog?id=<%=val._id%>"><button class="btn btn-danger">Delete</button></a>
-        </div>
-      </div>
-    </div>
-    <%})%>
-    </div>
-    </div>
-  </section>
+            </section>
 
-  <%}%>
-  <nav aria-label="Page navigation example m-5">
-    <ul class="pagination d-flex justify-content-center">
-      <li class="page-item">
-        <% if (page > 1) { %>
-  <a class="page-link" href="?page=<%= parseInt(page) - 1 %>">Previous</a>
-  <% } %>
-  </li>
-  <li class="page-item">
-    <a class="page-link" href="?page=<%= parseInt(page) %>"><%= page %></a>
-  </li>
-  <li class="page-item">
-    <% if (blogs.length === limit) { %>
-    <a class="page-link" href="?page=<%= parseInt(page) + 1 %>">Next</a>
-    <% } %>
+            <%}%>
+              <nav aria-label="Page navigation example m-5">
+                <ul class="pagination d-flex justify-content-center">
+                  <li class="page-item">
+                    <% if (page> 1) { %>
+                      <a class="page-link" href="?page=<%= parseInt(page) - 1 %>">Previous</a>
+                      <% } %>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="?page=<%= parseInt(page) %>">
+                      <%= page %>
+                    </a>
+                  </li>
+                  <li class="page-item">
+                    <% if (blogs.length===limit) { %>
+                      <a class="page-link" href="?page=<%= parseInt(page) + 1 %>">Next</a>
+                      <% } %>
 
-  </li>
-  </ul>
-  </nav>
+                  </li>
+                </ul>
+              </nav>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var commentButtons = document.querySelectorAll('.comment-btn');
+              <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                  var commentButtons = document.querySelectorAll('.comment-btn');
 
-      commentButtons.forEach(function(button) {
-        button.addEventListener('click', function(event) {
-          event.preventDefault();
-          var postId = button.getAttribute('data-post-id');
-          var commentSection = document.getElementById('comment-section-' + postId);
-          commentSection.style.display = (commentSection.style.display === 'none' || !commentSection.style.display) ? 'block' : 'none';
-        });
-      });
-    });
-  </script>
+                  commentButtons.forEach(function (button) {
+                    button.addEventListener('click', function (event) {
+                      event.preventDefault();
+                      var postId = button.getAttribute('data-post-id');
+                      var commentSection = document.getElementById('comment-section-' + postId);
+                      commentSection.style.display = (commentSection.style.display === 'none' || !commentSection.style.display) ? 'block' : 'none';
+                    });
+                  });
+                });
+              </script>
 
-  <%- include('../AdminPanel/footer') %>
+              <%- include('../AdminPanel/footer') %>

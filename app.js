@@ -1,5 +1,4 @@
 import express from 'express';
-import http from "http";
 import path from 'path';
 import flash from 'connect-flash';
 import session from 'express-session';
@@ -11,22 +10,10 @@ import { Server } from 'socket.io';
 const app = express();
 const port = process.env.PORT || 7500;
 
-const server = http.createServer(app);
-const io = new Server(server);
-
-io.on("connection", (socket) => {
-  console.log("A user has connected");
-});
-
-
-import logger from './logger.js'
-// import userSwaggerSpecs from './api-docs/user-swagger.js';
-// import categorySwaggerSpecs from './api-docs/category-swagger.js';
 import blogSwaggerSpecs from './api-docs/blog-swagger.js';
 
 import dotenv from 'dotenv';
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,8 +45,6 @@ import { userRoutes } from './router/user.js';
 import { categoryRoutes } from './router/category.js';
 import { blogRoutes } from './router/blog.js';
 
-// app.use('/user-docs', swaggerUi.serve, swaggerUi.setup(userSwaggerSpecs));
-// app.use('/category-docs', swaggerUi.serve, swaggerUi.setup(categorySwaggerSpecs));
 app.use('/blog-docs', swaggerUi.serve, swaggerUi.setup(blogSwaggerSpecs));
 
 app.use("/public", express.static(path.join(__dirname, "public")));
@@ -71,6 +56,7 @@ app.use("/", blogRoutes);
 
 import { db } from "./config/mongoose.js";
 import passport from "./helper/auth.js";
+import { blogger } from './controller/blogcontroller.js';
 
 app.get(
   "/auth/google",
@@ -85,10 +71,28 @@ app.get(
   }
 );
 
-app.listen(port, (err) => {
+const server = app.listen(port, (err) => {
   if (err) {
     console.log(err);
     return false;
   }
   console.log("Server is working on port :" + port);
+});
+
+let io = new Server(server)
+
+io.on('connection', (socket) => {
+
+  socket.on('userId', (userId) => {
+    socket.join(userId);
+  });
+
+  socket.on('like', (bloggerId) => {
+    io.in(bloggerId).emit('userlikes', bloggerId);
+  });
+
+  socket.on('follow', (bloggerId) => {
+    io.in(bloggerId).emit('userfollows', bloggerId);
+  });
+
 });

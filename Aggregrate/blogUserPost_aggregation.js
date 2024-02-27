@@ -1,4 +1,4 @@
-const blogPostData = [
+const blogUserPostData = [
     {
 
         $lookup: {
@@ -78,6 +78,8 @@ const blogPostData = [
             postDeleteDate: "$postDeleteDate",
             theme: "$category.theme",
             username: "$userData.username",
+            follower: "$userData.follower",
+            following: "$userData.following",
             createdAt: "$createdAt",
             commentData: "$commentData.comment",
             commentUserData: "$commentUserData.username",
@@ -86,5 +88,5 @@ const blogPostData = [
 ]
 
 export {
-    blogPostData
+    blogUserPostData
 };

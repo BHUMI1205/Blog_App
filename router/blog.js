@@ -2,7 +2,7 @@ import express from 'express';
 
 const blogRoutes = express.Router();
 
-import { getBlog, blogAdd, blogDataAdd, deleteblog, editblog, blogupdate, blogger, likes, unlike, follow, unfollow, save,unsave,savedblogs, comments, searchData, dateSearchData, getCategoryResult, userPost, blogActive, blogDeactive, adminRole, userRole ,paypalPayment,paypalsuccess,paypalcancel} from "../controller/blogcontroller.js";
+import { getBlog, blogAdd, blogDataAdd, deleteblog, editblog, blogupdate, blogger, likes, unlike, follow, unfollow, save, unsave, savedblogs, comments, searchData, dateSearchData, getCategoryResult, userPost, blogActive, blogDeactive, adminRole, userRole, paypalPayment, paypalsuccess, paypalcancel } from "../controller/blogcontroller.js";
 import { checkRole, jwt } from "../middelwares/jwt.js";
 import { multipleimageUpload } from "../middelwares/images.js";
 import { paginationMiddleware } from "../middelwares/pagination.js";
@@ -111,7 +111,6 @@ blogRoutes.get("/delete_blog", jwt, deleteblog);
  */
 blogRoutes.get("/edit_blog", jwt, editblog);
 
-
 /**
  * @swagger
  * /update_blog:
@@ -164,10 +163,25 @@ blogRoutes.post("/update_blog", jwt, multipleimageUpload, blogupdate);
  *     responses:
  *       '200':
  *         description: Successfully rendered the blogger's blog.
- */ 
+ */
 blogRoutes.get("/blogger", jwt, paginationMiddleware, blogger);
 
-
+/**
+ * @swagger
+ * /like?{id}:
+ *   get:
+ *     summary: Like blog .
+ *     parameters:
+ *        - in: query 
+ *          name: id
+ *          schema:
+ *              type: string
+ *          required: true
+ *          description: string id of blog to Like
+ *     responses:
+ *       '200':
+ *         description: Successfully Like the blog.
+ */
 blogRoutes.get("/like", jwt, likes);
 
 /**

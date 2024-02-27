@@ -3,6 +3,7 @@ import { scheduleDeletion } from "../middelwares/postdelete.js";
 import logger from '../logger.js';
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 import { blogPostLoginData } from '../Aggregrate/blogPostLogin_agggregation.js';
+import mongoose from "mongoose";
 
 const blogPosts = async (req, res) => {
   try {
@@ -10,7 +11,8 @@ const blogPosts = async (req, res) => {
     const { startIndex, limit } = req.pagination;
     let post = [], blogs;
     if (req.isAuthenticated()) {
-       let id = req.user.id
+      let id = req.user.id;
+      id = new mongoose.Types.ObjectId(id);
       blogs = await blog.aggregate(blogPostData(id)).skip(startIndex)
         .limit(limit);
     } else {
@@ -26,8 +28,6 @@ const blogPosts = async (req, res) => {
         post.push(obj);
       }
     }
-
-
     scheduleDeletion(post);
 
     return res.render("AdminPanel/index", {
