@@ -2,8 +2,13 @@
 
 <main id="main" class="main">
   <% if (successMessages.length>0) { %>
-  <div class="alert alert-success"><%=successMessages%></div>
-  <% } %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%=successMessages%>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <% } %>
    <% if(user && user.role != "user"){ %><a href="/category_Add">
     <button type="button" class="btn btn-primary">Add Category</button></a
   >

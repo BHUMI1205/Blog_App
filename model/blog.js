@@ -37,8 +37,12 @@ const blogSchema = mongoose.Schema({
     type: Date,
   },
   status: {
-    type: Number,
-    default: 1
+    type: Boolean,
+    default: true
+  },
+  isPremium: {
+    type: Boolean,
+    default: false
   }
 },
   {

@@ -20,6 +20,7 @@ import { paginationMiddleware } from "../middelwares/pagination.js";
  *         description: Successfully rendered the user's blog.
  */
 blogRoutes.get("/blog", jwt, paginationMiddleware, blog.getBlog);
+blogRoutes.get("/singleBlogPost", jwt, blog.singleBlogPost);
 
 /**
  * @swagger
@@ -510,8 +511,10 @@ blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware,
  *         description: Successfully change the role.
  */
 blogRoutes.get("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.userRole);
-blogRoutes.get("/paypalPayment", jwt, blog.paypalPayment);
 blogRoutes.get("/payment", jwt, blog.payment);
+blogRoutes.get("/paypalPaymentBasic", jwt, blog.paypalPaymentBasic);
+blogRoutes.get("/paypalPaymentEnterprise", jwt, blog.paypalPaymentEnterprise);
+blogRoutes.get("/paypalPaymentPro", jwt, blog.paypalPaymentPro);
 blogRoutes.get("/paypalsuccess", jwt, blog.paypalsuccess);
 blogRoutes.get("/paypalcancel", jwt, blog.paypalcancel);
 

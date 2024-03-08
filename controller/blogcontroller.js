@@ -3,13 +3,15 @@ import streamifier from "streamifier";
 import { blog, user, like, followBlogger, savedBlog, category, Comment } from "./models.js";
 import { scheduleDeletion } from "../middelwares/postdelete.js";
 import { paypal } from "../config/paypal.js";
+import * as cron from 'node-cron';
+import { mongoose } from 'mongoose';
 
 import { validateBlogData, validateUpdateBlogData, validateData } from "../validators/blog.js";
 import logger from '../logger.js';
 
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from 'dotenv';
-dotenv.config();
+// dotenv.config();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,6 +23,16 @@ import { blogUserPostData } from '../Aggregrate/blogUserPost_aggregation.js';
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 import { saveBlogPostData } from '../Aggregrate/savedBlogPost_aggregation.js';
 import { blogPostLoginData } from '../Aggregrate/blogPostLogin_agggregation.js';
+import { response } from "express";
+
+
+cron.schedule('* * * * *', () => {
+  logMessage();
+});
+
+function logMessage() {
+  // console.log('Cron job executed at:', new Date().toLocaleString());
+}
 
 const getBlog = async (req, res) => {
   try {
@@ -82,6 +94,38 @@ const getBlog = async (req, res) => {
     return false;
   }
 };
+
+const singleBlogPost = async (req, res) => {
+  try {
+    if (req.isAuthenticated()) {
+      let blogId = req.query.blogId;
+      blogId = new mongoose.Types.ObjectId(blogId);
+
+      const blogs = await blog
+        .aggregate([{
+          $match: {
+            _id: blogId
+          }
+        }, ...blogUserPostData])
+
+      const categorydata = await category.find({});
+
+      return res.render('blog/singleBlog', {
+        blogs,
+        user: req.user,
+        categorydata
+      })
+
+    } else {
+      req.flash('success', 'You have to login first to read the blog')
+      return res.redirect('/')
+    }
+  } catch (err) {
+    console.log(err);
+    logger.error(err);
+    return false;
+  }
+}
 
 const blogAdd = async (req, res) => {
   try {
@@ -974,44 +1018,39 @@ const userRole = async (req, res) => {
 }
 
 const payment = (req, res) => {
-  return res.render('subscription/priceTable', {
-    userId: req.query.userId
-  })
+  return res.render('subscription/priceTable')
 }
 
-const paypalPayment = async (req, res) => {
+const paypalPaymentBasic = async (req, res) => {
   try {
-    let userId = req.query.userId;
-    let userBlog = await user.findOne({ _id: userId });
 
-    const name = userBlog.username;
+  }
 
+  catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+const paypalPaymentPro = async (req, res) => {
+  try {
     const paymentData = {
       "intent": "SALE",
       "payer": {
         "payment_method": "paypal"
       },
       "redirect_urls": {
-        "return_url": "http://localhost:7800/paypalsuccess",
+        "return_url": `http://localhost:7800/paypalsuccess`,
         "cancel_url": "http://localhost:7800/paypalcancel"
       },
       "transactions": [{
-        "item_list": {
-          "items": [{
-            "name": name,
-            "currency": "USD",
-            "quantity": 1,
-            "price": 59
-          }]
-        },
         "amount": {
           "currency": "USD",
-          "total": "59"
+          "total": "49"
         },
         "description": "Payment using PayPal"
       }]
     };
-
     paypal.payment.create(paymentData, (err, payment) => {
       if (err) {
         console.log(err.response);
@@ -1033,6 +1072,47 @@ const paypalPayment = async (req, res) => {
   }
 }
 
+const paypalPaymentEnterprise = async (req, res) => {
+  try {
+
+    const paymentData = {
+      "intent": "SALE",
+      "payer": {
+        "payment_method": "paypal"
+      },
+      "redirect_urls": {
+        "return_url": `http://localhost:7800/paypalsuccess`,
+        "cancel_url": "http://localhost:7800/paypalcancel"
+      },
+      "transactions": [{
+        "amount": {
+          "currency": "USD",
+          "total": "69"
+        },
+        "description": "Payment using PayPal"
+      }]
+    };
+
+    paypal.payment.create(paymentData, (err, payment) => {
+      if (err) {
+        console.log(err.response);
+        return res.status(500).send("Error creating PayPal payment");
+      } else {
+        for (let i = 0; i < payment.links.length; i++) {
+          if (payment.links[i].rel === "approval_url") {
+            console.log(payment.links[i].rel);
+            return res.redirect(payment.links[i].href);
+          }
+        }
+        return res.status(500).send("Approval URL not found in PayPal response");
+      }
+    });
+  } catch (error) {
+    console.error('Error creating PayPal payment:', error);
+    return res.status(500).send('Error creating PayPal payment');
+  }
+}
+
 const paypalsuccess = async (req, res) => {
   req.flash("success", "transaction completed")
   return res.redirect('/')
@@ -1045,6 +1125,7 @@ const paypalcancel = async (req, res) => {
 
 export {
   getBlog,
+  singleBlogPost,
   blogAdd,
   blogDataAdd,
   deleteblog,
@@ -1068,7 +1149,9 @@ export {
   adminRole,
   userRole,
   payment,
-  paypalPayment,
+  paypalPaymentBasic,
+  paypalPaymentPro,
+  paypalPaymentEnterprise,
   paypalsuccess,
   paypalcancel
 };

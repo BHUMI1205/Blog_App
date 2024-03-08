@@ -1,11 +1,14 @@
 <%- include('../AdminPanel/header') %>
 
 <main id="main" class="main my-5 py-5">
-    <% if (successMessages.length>0) { %>
-    <div class="alert alert-success">
-        <%=successMessages%>
-    </div>
-    <% } %>
+     <% if (successMessages.length>0) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                      <%=successMessages%>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <% } %>
     <a href="/category" class="m-5">
         <button type="button" class="btn btn-outline-dark mt-5 ms-5"><span class="bi-arrow-left"></span></button>
       </a>

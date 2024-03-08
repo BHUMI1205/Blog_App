@@ -1,83 +1,94 @@
 <%- include('../AdminPanel/header') %>
 
-<main id="main" class="main my-5 py-5">
-  <% if (successMessages.length>0) { %>
-  <div class="alert alert-success"><%=successMessages%></div>
-  <% } %>
-  <a href="/blog" class="m-5">
-    <button type="button" class="btn btn-outline-dark mt-5 ms-5"><span class="bi-arrow-left"></span></button>
-  </a>
-  <div class="d-flex align-items-center justify-content-center">
-   
-    <div class="col-6 mt-5 w-25 card p-5 my-5">
-      <form method="post" action="/add_blogData" enctype="multipart/form-data">
-        <div class="form-outline mb-4">
-          <label class="form-label">Image</label>
-          <input type="file" name="image" accept="image/*" multiple />
-        </div>
+  <main id="main" class="main mt-5 pt-5">
+    <% if (successMessages.length>0) { %>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%=successMessages%>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <% } %>
+        <a href="/blog" class="m-5">
+          <button type="button" class="btn btn-outline-dark mt-5 ms-5"><span class="bi-arrow-left"></span></button>
+        </a>
+        <div class="d-flex align-items-center justify-content-center">
 
-        <!-- <div class="form-outline mb-4">
+          <div class="col-6 mt-5 w-25 card p-5 my-5">
+            <form method="post" action="/add_blogData" enctype="multipart/form-data">
+              <div class="form-outline mb-4">
+                <label class="form-label">Image</label>
+                <input type="file" name="image" accept="image/*" multiple />
+              </div>
+
+              <!-- <div class="form-outline mb-4">
                     <label class="form-label">Video</label>
                     <input type="file" name="video">
                 </div> -->
 
-        <!-- Email input -->
-        <div class="form-outline mb-4">
-          <label class="form-label">Category</label>
-          <select name="theme">
-            <%data.map((val)=>{%>
-            <option value="<%=val.id%>"><%=val.theme%></option>
-            <%})%>
-          </select>
-        </div>
+              <!-- Email input -->
+              <div class="form-outline mb-4">
+                <label class="form-label">Category</label>
+                <select name="theme">
+                  <%data.map((val)=>{%>
+                    <option value="<%=val.id%>">
+                      <%=val.theme%>
+                    </option>
+                    <%})%>
+                </select>
+              </div>
 
-        <div class="form-outline mb-4">
-          <label class="form-label">Title</label>
-          <input
-            type="text"
-            name="title"
-            class="form-control"
-            placeholder="Title"
-          />
-        </div>
+              <div class="form-outline mb-4">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" placeholder="Title" />
+              </div>
 
-        <div class="form-outline mb-4">
-          <label class="form-label">Description</label>
-          <input
-            type="text"
-            name="detail"
-            class="form-control"
-            placeholder="Description"
-          />
-        </div>
+              <div class="form-outline mb-4">
+                <label class="form-label">Description</label>
+                <input type="text" name="detail" class="form-control" placeholder="Description" />
+              </div>
 
-        <div class="mb-4">
-          <label class="form-label">Select Status of your Category</label>
-  
-          <div class="form-check">
-              <input class="form-check-input" type="radio" name="status" value="1" checked />
-              <label class="form-check-label">Active</label>
+              <div class="mb-4">
+                <label class="form-label">Select Status of your Blog</label>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="status" value="1" checked />
+                  <label class="form-check-label">Active</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="status" value="0" />
+                  <label class="form-check-label">Deactive</label>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label">Select Status of your Category</label>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="premium" value="1"  />
+                  <label class="form-check-label">Premium</label>
+                </div>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="premium" value="0" checked/>
+                  <label class="form-check-label">Free</label>
+                </div>
+              </div>
+
+
+              <div class="form-outline mb-4">
+                <label class="form-label">Exiperd Date</label>
+                <input type="datetime-local" name="date" class="form-control" />
+              </div>
+
+              <!-- Submit button -->
+              <button type="submit" class="btn btn-primary btn-lg btn-block">
+                Submit
+              </button>
+            </form>
           </div>
-  
-          <div class="form-check">
-              <input class="form-check-input" type="radio" name="status" value="0" />
-              <label class="form-check-label">Deactive</label>
-          </div>
-      </div>
-
-
-        <div class="form-outline mb-4">
-          <label class="form-label">Exiperd Date</label>
-          <input type="datetime-local" name="date" class="form-control" />
         </div>
+  </main>
 
-        <!-- Submit button -->
-        <button type="submit" class="btn btn-primary btn-lg btn-block">
-          Submit
-        </button>
-      </form>
-    </div>
-  </div>
-</main>
-
-<%- include('../AdminPanel/footer') %>
+  <%- include('../AdminPanel/footer') %>

@@ -9,6 +9,7 @@ import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 import { db } from "./config/mongoose.js";
 import passport from "./helper/auth.js";
+import * as cron from 'node-cron';
 
 import blogSwaggerSpecs from './api-docs/blog-swagger.js';
 
@@ -21,7 +22,15 @@ import { blogRoutes } from './router/blog.js';
 const app = express();
 const port = process.env.PORT || 7500;
 
-dotenv.config();
+// dotenv.config();
+
+cron.schedule('05 0 * * *', () => {
+  logMessage();
+});
+
+function logMessage() {
+  console.log('Cron job executed at:', new Date().toLocaleString());
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

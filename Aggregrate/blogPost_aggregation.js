@@ -1,8 +1,12 @@
 const blogPostData = (id) => [
     {
-        $match: {
-            status: 1,
-        }
+        $match: { status: true }
+    },
+    {
+        $match: { isPremium: false }
+    },
+    {
+        $limit: 5
     },
     {
         $lookup: {
@@ -17,7 +21,7 @@ const blogPostData = (id) => [
     },
     {
         $match: {
-            "category.status": 1,
+            "category.status": true,
         }
     },
     {

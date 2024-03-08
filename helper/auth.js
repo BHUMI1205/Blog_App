@@ -2,7 +2,7 @@ import passport from "passport";
 import GoogleStrategy from 'passport-google-oauth20';
 import {user} from "../model/user.js";
 import dotenv from 'dotenv';
-dotenv.config();
+// dotenv.config();
 
 const authUser = (request, accessToken, refreshToken, profile, done) => {
   return done(null, profile);

@@ -6,10 +6,13 @@
     <div class="container" data-aos="fade-up">
       <div class="row g-5">
         <% if (successMessages.length>0) { %>
-        <div class="alert alert-success">
-          <%=successMessages%>
-        </div> 
-        <% } %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%=successMessages%>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <% } %>
 
         <%blogs.map((val)=>{%>
         <div class="col-lg-4">

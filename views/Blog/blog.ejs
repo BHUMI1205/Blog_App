@@ -1,12 +1,16 @@
 <%- include('../AdminPanel/header') %>
 
-  <main id="main" class="main my-5 py-5">
+  <main id="main" class="main mt-5 pt-5">
     <% if(user.role !="user" ){ %>
       <% if (successMessages.length>0) { %>
-        <div class="alert alert-success">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
           <%=successMessages%>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <% } %>
+        
           <table class="table w-50 mx-auto my-5">
             <thead>
               <tr>
@@ -77,8 +81,11 @@
               <div class="container" data-aos="fade-up">
                 <div class="row g-5">
                   <% if (successMessages.length>0) { %>
-                    <div class="alert alert-success">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
                       <%=successMessages%>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <% } %>
                       <%blogs.map((val)=>{%>

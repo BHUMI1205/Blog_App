@@ -1,8 +1,12 @@
 const blogPostLoginData = [
     {
-        $match: {
-            status: 1,
-        }
+        $match: { status: true }
+    },
+    {
+        $match: { isPremium: false }
+    },
+    {
+        $limit:3
     },
     {
         $lookup: {
@@ -17,7 +21,7 @@ const blogPostLoginData = [
     },
     {
         $match: {
-            "category.status": 1,
+            "category.status": true,
         }
     },
     {
@@ -78,7 +82,7 @@ const blogPostLoginData = [
     {
         $project: {
             _id: "$_id",
-            theme:"$theme",
+            theme: "$theme",
             title: "$title",
             image: "$image",
             detail: "$detail",
