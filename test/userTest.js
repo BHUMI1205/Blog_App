@@ -2,171 +2,158 @@ import { expect } from 'chai';
 import request from 'request';
 
 describe('user', () => {
-    it('register page', (done) => {
-        request.get('http://localhost:7800/register', (err, res, body) => {
+    it('register page', () => {
+        request.get('http://localhost:7800/register', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('Add user', (done) => {
-        request.post('http://localhost:7800/userdata', (err, res, body) => {
+    it('Add user', () => {
+        request.post('http://localhost:7800/userdata', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('login page', (done) => {
-        request.get('http://localhost:7800/login', (err, res, body) => {
+    it('login page', () => {
+        request.get('http://localhost:7800/login', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('login user', (done) => {
-        request.post('http://localhost:7800/logindata', (err, res, body) => {
+    it('login user', () => {
+        request.post('http://localhost:7800/logindata', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('forgot password ', (done) => {
-        request.get('http://localhost:7800/forgot_password', (err, res, body) => {
+    it('forgot password ', () => {
+        request.get('http://localhost:7800/forgot_password', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('email address user', (done) => {
-        request.post('http://localhost:7800/email_address', (err, res, body) => {
+    it('email address user', () => {
+        request.post('http://localhost:7800/email_address', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('otp page', (done) => {
-        request.get('http://localhost:7800/getOtp', (err, res, body) => {
+    it('otp page', () => {
+        request.get('http://localhost:7800/getOtp', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('otp check', (done) => {
-        request.post('http://localhost:7800/otpdata', (err, res, body) => {
+    it('otp check', () => {
+        request.post('http://localhost:7800/otpdata', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('new password page', (done) => {
-        request.get('http://localhost:7800/change_password', (err, res, body) => {
+    it('new password page', () => {
+        request.get('http://localhost:7800/change_password', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('password change', (done) => {
-        request.post('http://localhost:7800/new_password', (err, res, body) => {
+    it('password change', () => {
+        request.post('http://localhost:7800/new_password', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('logout', (done) => {
-        request.get('http://localhost:7800/logout', (err, res, body) => {
+    it('logout', () => {
+        request.get('http://localhost:7800/logout', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('new user page', (done) => {
-        request.get('http://localhost:7800/newUser', (err, res, body) => {
+    it('new user page', () => {
+        request.get('http://localhost:7800/newUser', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
             else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('new user add', (done) => {
-        request.post('http://localhost:7800/newUserdata', (err, res, body) => {
+    it('new user add', () => {
+        request.post('http://localhost:7800/newUserdata', async (err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err)
             }
-            else { 
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
+            else {
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
             }
         });
     });

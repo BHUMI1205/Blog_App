@@ -3,242 +3,222 @@ import request from 'request';
 
 describe('blogs', () => {
 
-    it('Get All blog', (done) => {
-        request.get('http://localhost:7800/blog', (err, res, body) => {
-            if (err) {
-                done(err)
-            }
-            else {
-                expect(res).to.have.property('body');
-                expect(res.statusCode).to.equal(200);
-                done();
-            }
-        });
-    });
-
-    it('Add blog', (done) => {
-        request.get('http://localhost:7800/blog_Add', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('Add blog data', (done) => {
-        request.post('http://localhost:7800/add_blogData', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('Delete blog', (done) => {
-        request.get('http://localhost:7800/delete_blog', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('edit blog', (done) => {
-        request.get('http://localhost:7800/edit_blog', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('update blog', (done) => {
-        request.post('http://localhost:7800/update_blog', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('like blog', (done) => {
-        request.get('http://localhost:7800/like', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('unlike blog', (done) => {
-        request.get('http://localhost:7800/unlike', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('save blog', (done) => {
-        request.get('http://localhost:7800/follow', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('unsave blog', (done) => {
-        request.get('http://localhost:7800/unfollow', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('saved blog', (done) => {
-        request.get('http://localhost:7800/followBloggers', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(404);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('comment blog', (done) => {
-        request.post('http://localhost:7800/comment', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(302);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('serach blog', (done) => {
-        request.post('http://localhost:7800/searchData', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(500);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('datesearch blog', (done) => {
-        request.post('http://localhost:7800/DateSearchData', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('categoryresult blog', (done) => {
-        request.get('http://localhost:7800/getCategoryResult', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
- 
-    it('user blog', (done) => { 
-        request.get('http://localhost:7800/userPost', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
-            }
-        });
-    });
-
-    it('active blog', (done) => {
-        request.get('http://localhost:7800/blogActive', (err, res, body) => {
-            if (err) {
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                done();
-            }
-        });
-    });
-
-    it('deactive blog', (done) => {
-        request.get('http://localhost:7800/blogDeactive', (err, res, body) => {
+    it('Get All blog', () => {
+        request.get('http://localhost:7800/blog', async(err, res, body) => {
             if (err) {
                 console.log(err);
-                done(err)
-            } else {
-                expect(res.statusCode).to.equal(200);
-                done();
+            }
+            else {
+                await expect(res).to.have.property(body);
+                await expect(res.statusCode).to.equal(200);
             }
         });
     });
 
-    it('adminrole', (done) => {
-        request.get('http://localhost:7800/adminRole', (err, res, body) => {
+    it('Add blog', () => {
+        request.get('http://localhost:7800/blog_Add', async(err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err);
             } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });
 
-    it('user role blog', (done) => {
-        request.get('http://localhost:7800/userRole', (err, res, body) => {
+    it('Add blog data', () => {
+        request.post('http://localhost:7800/add_blogData', async(err, res, body) => {
             if (err) {
-                done(err)
+                console.log(err);
             } else {
-                expect(res.statusCode).to.equal(200);
-                expect(res).to.have.property('body');
-                done();
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('Delete blog', () => {
+        request.get('http://localhost:7800/delete_blog', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('edit blog', () => {
+        request.get('http://localhost:7800/edit_blog', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('update blog', () => {
+        request.post('http://localhost:7800/update_blog', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('like blog', () => {
+        request.get('http://localhost:7800/like', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('unlike blog', () => {
+        request.get('http://localhost:7800/unlike', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('follow blog', () => {
+        request.get('http://localhost:7800/follow', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('unfollow blog', () => {
+        request.get('http://localhost:7800/unfollow', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('saved blog', () => {
+        request.get('http://localhost:7800/followBloggers', async (err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await  expect(res.statusCode).to.equal(404);
+                await  expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('comment blog', () => {
+        request.post('http://localhost:7800/comment', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(302);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('serach blog', () => {
+        request.post('http://localhost:7800/searchData', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(500);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('datesearch blog', () => {
+        request.post('http://localhost:7800/DateSearchData', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('categoryresult blog', () => {
+        request.get('http://localhost:7800/getCategoryResult', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('user blog', () => {
+        request.get('http://localhost:7800/userPost', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('active blog', () => {
+        request.get('http://localhost:7800/blogActive', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+            }
+        });
+    });
+
+    it('deactive blog', () => {
+        request.get('http://localhost:7800/blogDeactive', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+            }
+        });
+    });
+
+    it('adminrole', () => {
+        request.get('http://localhost:7800/adminRole', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
+            }
+        });
+    });
+
+    it('user role blog', () => {
+        request.get('http://localhost:7800/userRole', async(err, res, body) => {
+            if (err) {
+                console.log(err);
+            } else {
+                await expect(res.statusCode).to.equal(200);
+                await expect(res).to.have.property(body);
             }
         });
     });

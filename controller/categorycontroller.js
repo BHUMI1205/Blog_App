@@ -46,54 +46,56 @@ const categoryAdd = async (req, res) => {
 const categoryDataAdd = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
+      let file = req.file
       const { theme, detail, status } = req.body;
       let categoryData = await category.findOne({ theme: theme });
+      const validationError = validateCategoryData(theme, detail, file);
 
-      if (!categoryData) {
-        const uploadStream = cloudinary.uploader.upload_stream({
-          public_id: Date.now() + Math.floor((Math.random() * 1000000)),
-          resource_type: "image",
-          folder: "blogs/image"
-
-        }, (err, result) => {
-          if (err) {
-            logger.warning("Error uploading image to Cloudinary")
-            req.flash("error", "Error uploading image to Cloudinary");
-            return res.redirect("back");
-          }
-
-          let imageUrl = result.url;
-          const validationError = validateCategoryData(theme, detail, imageUrl);
-
-          if (validationError) {
-            req.flash("error", validationError);
-            return res.redirect("back");
-          } else {
-            let data = category.create({
-              theme: theme,
-              detail: detail,
-              image: imageUrl,
-              public_id: result.public_id,
-              adminId: req.user.id,
-              status: status
-            });
-            if (!data) {
-              logger.warning("Category is not Added")
-              req.flash("error", "Category is not Added");
-              return res.redirect("back");
-            } else {
-              return res.redirect("/category");
-            }
-          }
-        });
-
-        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
-      } else {
+      if (categoryData) {
         logger.warning("Category already exists")
         req.flash("error", "Category already exists");
         return res.redirect("back");
+      } else {
+        if (validationError) {
+          req.flash("error", validationError);
+          return res.redirect("back");
+        } else {
+          const uploadStream = cloudinary.uploader.upload_stream({
+            public_id: Date.now() + Math.floor((Math.random() * 1000000)),
+            resource_type: "image",
+            folder: "blogs/image"
+
+          }, (err, result) => {
+            if (err) {
+              logger.warning("Error uploading image to Cloudinary")
+              req.flash("error", "Error uploading image to Cloudinary");
+              return res.redirect("back");
+            }
+            else {
+              let imageUrl = result.url;
+
+              let data = category.create({
+                theme: theme,
+                detail: detail,
+                image: imageUrl,
+                public_id: result.public_id,
+                adminId: req.user.id, 
+                status: status
+              });
+              if (!data) {
+                logger.warning("Category is not Added")
+                req.flash("error", "Category is not Added");
+                return res.redirect("back");
+              } else {
+                logger.warning("Category is Added")
+              }
+            }
+          }
+          )
+        }
       }
-    } else {
+    }
+    else {
       return res.redirect('/')
     }
   } catch (err) {

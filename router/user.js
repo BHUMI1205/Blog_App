@@ -2,7 +2,7 @@ import express from 'express';
 
 const userRoutes = express.Router();
 
-import { register, userdata, login, logindata, forgotpassword, emailAddress, getOtp, otpdata, changepassword, newpassword, logout, newUser, newUserdata, msgToAI } from "../controller/usercontroller.js";
+import * as user from "../controller/usercontroller.js";
 import { checkRole, jwt } from "../middelwares/jwt.js";
 import { paginationMiddleware } from "../middelwares/pagination.js";
 
@@ -10,12 +10,16 @@ import { paginationMiddleware } from "../middelwares/pagination.js";
  * @swagger
  * /register:
  *   get:
+ *     tags:
+ *       - User
  *     summary: Render the registration page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the registration page.
  * /userdata:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Register a new user. 
  *     requestBody:
  *       required: true
@@ -53,19 +57,23 @@ import { paginationMiddleware } from "../middelwares/pagination.js";
  *         description: Bad request.
  */
 
-userRoutes.get("/register", register);
-userRoutes.post("/userdata", userdata);
+userRoutes.get("/register", user.register);
+userRoutes.post("/userdata", user.userdata);
 
 /**
  * @swagger
  * /login:
  *   get:
+ *     tags:
+ *       - User
  *     summary: Render the login page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the login page.
  * /logindata:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Log in a user.
  *     requestBody:
  *       required: true
@@ -90,19 +98,23 @@ userRoutes.post("/userdata", userdata);
  *         description: Bad request.
  */
 
-userRoutes.get("/login", login);
-userRoutes.post("/logindata", logindata);
+userRoutes.get("/login", user.login);
+userRoutes.post("/logindata", user.logindata);
 
 /**
  * @swagger
  * /forgot_password:
  *   get:
+ *     tags:
+ *       - User
  *     summary: Render the forgot password page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the forgot password page.
  * /email_address:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Send an email for password reset.
  *     requestBody:
  *       required: true
@@ -123,19 +135,23 @@ userRoutes.post("/logindata", logindata);
  *         description: Bad request.
  */
 
-userRoutes.get("/forgot_password", forgotpassword);
-userRoutes.post("/email_address", emailAddress);
+userRoutes.get("/forgot_password", user.forgotpassword);
+userRoutes.post("/email_address", user.emailAddress);
 
 /**
  * @swagger
  * /getOtp:
  *   get:
+ *     tags:
+ *       - User
  *     summary: Render the OTP verification page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the OTP verification page.
  * /otpdata:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Verify the OTP sent for password reset.
  *     requestBody:
  *       required: true
@@ -155,19 +171,23 @@ userRoutes.post("/email_address", emailAddress);
  *         description: Bad request.
  */
 
-userRoutes.get("/getOtp", getOtp);
-userRoutes.post("/otpdata", otpdata);
+userRoutes.get("/getOtp", user.getOtp);
+userRoutes.post("/otpdata", user.otpdata);
 
 /**
  * @swagger
  * /change_password:
  *   get:
+ *     tags:
+ *       - User
  *     summary: Render the change password page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the change password page.
  * /new_password:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Change user password.
  *     requestBody:
  *       required: true
@@ -192,30 +212,37 @@ userRoutes.post("/otpdata", otpdata);
  *         description: Bad request.
  */
 
-userRoutes.get("/change_password", changepassword);
-userRoutes.post("/new_password", newpassword);
+userRoutes.get("/change_password", user.changepassword);
+userRoutes.post("/new_password", user.newpassword);
+
 
 /**
  * @swagger
  * /logout:
  *   get:
+ *     tags:
+ *       - User
  *     summary: logout from app.
  *     responses:
  *       '200':
  *         description: Successfully logout frm app.
  */
 
-userRoutes.get("/logout", logout);
+userRoutes.get("/logout", user.logout);
 /**
  * @swagger
  * /newUser:
  *   get:
+ *     tags:
+ *       - User
  *     summary: Render the new user registration page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the new user registration page.
  * /newUserdata:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Register a new user by an admin.
  *     requestBody:
  *       required: true
@@ -248,9 +275,9 @@ userRoutes.get("/logout", logout);
  *         description: Bad request.
  */
 
-userRoutes.get("/newUser", jwt, checkRole('superAdmin'), newUser);
-userRoutes.post("/newUserdata", jwt, checkRole('superAdmin'), newUserdata);
+userRoutes.get("/newUser", jwt, checkRole('superAdmin'), user.newUser);
+userRoutes.post("/newUserdata", jwt, checkRole('superAdmin'), user.newUserdata);
 
-userRoutes.post("/msg-ai", jwt, paginationMiddleware, msgToAI);
+userRoutes.post("/msg-ai", jwt, paginationMiddleware, user.msgToAI);
 
 export { userRoutes };

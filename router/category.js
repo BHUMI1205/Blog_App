@@ -2,28 +2,31 @@ import express from 'express';
 
 const categoryRoutes = express.Router();
 
-import { getCategory, categoryAdd, categoryDataAdd, deletecategory, editcategory, categoryupdate } from "../controller/categorycontroller.js";
+import * as category from "../controller/categorycontroller.js";
 import { checkRole, jwt } from "../middelwares/jwt.js";
 import { imagedata } from "../middelwares/images.js";
-
 
 
 /**
  * @swagger
  * /category:
  *   get:
+ *     tags:
+ *       - Category
  *     summary: Render the category.
  *     responses:
  *       '200':
  *         description: Successfully rendered the category.
  */
 
-categoryRoutes.get("/category", jwt, getCategory);
+categoryRoutes.get("/category", jwt, category.getCategory);
 
 /**
  * @swagger
  * /add_categoryData:
  *   post:
+ *     tags:
+ *       - Category
  *     summary: add a category.
  *     requestBody:
  *       required: true
@@ -53,26 +56,30 @@ categoryRoutes.get("/category", jwt, getCategory);
  */
 
 
-categoryRoutes.post("/add_categoryData", jwt, imagedata, categoryDataAdd);
+categoryRoutes.post("/add_categoryData", jwt, imagedata, category.categoryDataAdd);
 
 
 /**
  * @swagger
  * /category_Add:
  *   get:
+ *     tags:
+ *       - Category
  *     summary: Render the category add page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the category add page.
  */
 
-categoryRoutes.get("/category_Add", jwt, categoryAdd);
+categoryRoutes.get("/category_Add", jwt, category.categoryAdd);
 
 
 /**
  * @swagger
  * /delete_category?{id}:
  *   get:
+ *     tags:
+ *       - Category
  *     summary: delete a category.
  *     description: Delete category
  *     parameters:
@@ -90,7 +97,7 @@ categoryRoutes.get("/category_Add", jwt, categoryAdd);
  */
 
 
-categoryRoutes.get("/delete_category", jwt, checkRole('superAdmin'), deletecategory);
+categoryRoutes.get("/delete_category", jwt, checkRole('superAdmin'), category.deletecategory);
 
 
 
@@ -98,6 +105,8 @@ categoryRoutes.get("/delete_category", jwt, checkRole('superAdmin'), deletecateg
  * @swagger
  * /edit_category?{id}:
  *   get:
+ *     tags:
+ *       - Category
  *     summary: Render the category edit page.
  *     parameters:
  *        - in: query 
@@ -111,13 +120,15 @@ categoryRoutes.get("/delete_category", jwt, checkRole('superAdmin'), deletecateg
  *         description: Successfully rendered the category edit page.
  */
 
-categoryRoutes.get("/edit_category", jwt, checkRole('superAdmin'), editcategory);
+categoryRoutes.get("/edit_category", jwt, checkRole('superAdmin'), category.editcategory);
 
 
 /**
  * @swagger
  * /update_category?{id}:
  *   post:
+ *     tags:
+ *       - Category
  *     summary: update a category.
  *     description: update category
  *     requestBody:
@@ -146,6 +157,6 @@ categoryRoutes.get("/edit_category", jwt, checkRole('superAdmin'), editcategory)
  *         description: Bad request.
  */
 
-categoryRoutes.post("/update_category", jwt, checkRole('superAdmin'), imagedata, categoryupdate);
+categoryRoutes.post("/update_category", jwt, checkRole('superAdmin'), imagedata, category.categoryupdate);
 
 export { categoryRoutes };

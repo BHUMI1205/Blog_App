@@ -111,9 +111,7 @@ const logindata = async (req, res) => {
             expiresIn: "1hr",
           });
           // Set data
-          // sessionStorage.setItem('token', token);
-
-
+          // sessionStorage.setItem('token', token); 
           res.cookie("token", token, { maxAge: 3600000, httpOnly: true, secure: true, sameSite: "Strict" });
           return res.redirect("/");
         } else {

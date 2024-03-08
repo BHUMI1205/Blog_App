@@ -1,13 +1,15 @@
 import validator from "validator";
 
-const validateBlogData = (title, detail ,theme) => {
-  if (theme == undefined) {
+const validateBlogData = (title, detail, theme, file) => {
+  if (file == false) {
+    return "image have to Added";
+  } else if (theme == undefined) {
     return "theme have to Added";
   } else if (validator.isEmpty(title) == true) {
     return "Title have to Added";
   } else if (validator.isEmpty(detail) == true) {
     return "Detail have to Added";
-  } else { 
+  } else {
     return null;
   }
 }

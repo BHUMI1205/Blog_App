@@ -6,23 +6,28 @@ import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import swaggerUi from 'swagger-ui-express';
 import { Server } from 'socket.io';
+import dotenv from 'dotenv';
+import { db } from "./config/mongoose.js";
+import passport from "./helper/auth.js";
+
+import blogSwaggerSpecs from './api-docs/blog-swagger.js';
+
+import { routes } from './router/main.js';
+import { userRoutes } from './router/user.js';
+import { categoryRoutes } from './router/category.js';
+import { blogRoutes } from './router/blog.js';
+
 
 const app = express();
 const port = process.env.PORT || 7500;
 
-import blogSwaggerSpecs from './api-docs/blog-swagger.js';
-
-import dotenv from 'dotenv';
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.set("view engine", "ejs");
-app.use(
-  express.urlencoded({ limit: "10mb", extended: true, parameterLimit: 50000 })
-);
-
+app.use(express.urlencoded({ limit: "10mb", extended: true, parameterLimit: 50000 }));
 app.use(flash());
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -40,23 +45,14 @@ app.use((req, res, next) => {
   next();
 });
 
-import { routes } from './router/main.js';
-import { userRoutes } from './router/user.js';
-import { categoryRoutes } from './router/category.js';
-import { blogRoutes } from './router/blog.js';
 
 app.use('/blog-docs', swaggerUi.serve, swaggerUi.setup(blogSwaggerSpecs));
-
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 app.use("/", routes);
 app.use("/", userRoutes);
 app.use("/", categoryRoutes);
 app.use("/", blogRoutes);
-
-import { db } from "./config/mongoose.js";
-import passport from "./helper/auth.js";
-import { blogger } from './controller/blogcontroller.js';
 
 app.get(
   "/auth/google",
@@ -78,6 +74,8 @@ const server = app.listen(port, (err) => {
   }
   console.log("Server is working on port :" + port);
 });
+
+
 
 let io = new Server(server)
 

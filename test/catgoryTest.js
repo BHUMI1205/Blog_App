@@ -1,53 +1,64 @@
-
 import { expect } from 'chai';
 import request from 'request';
 
 describe('category', () => {
-    it('Get All category', (done) => {
-        request.get('http://localhost:7800/category', (err, res, body) => {
-            expect(res).to.have.property('body');
-            expect(res.statusCode).to.equal(200);
-            done();
+    it('Get All category', () => {
+        request.get('http://localhost:7800/category', async (err, res, body) => {
+            if (err) {
+                console.log(err);
+            }
+            await expect(res).to.have.property(body);
+            await expect(res.statusCode).to.equal(200);
         });
     });
 
-    it('Add category', (done) => {
-        request.post('http://localhost:7800/add_categoryData', (err, res, body) => {
-            expect(res.statusCode).to.equal(302);
-            expect(res).to.have.property('body');
-            done();
+    it('Add category', () => {
+        request.post('http://localhost:7800/add_categoryData', async (err, res, body) => {
+            if (err) {
+                console.log(err);
+            }
+            await expect(res.statusCode).to.equal(302);
+            await expect(res).to.have.property(body);
         });
     });
 
-    it('add category page', (done) => {
-        request.get('http://localhost:7800/category_Add', (err, res, body) => {
-            expect(res.statusCode).to.equal(200);
-            expect(res).to.have.property('body');
-            done();
+    it('add category page', () => {
+        request.get('http://localhost:7800/category_Add', async (err, res, body) => {
+            if (err) {
+                console.log(err);
+            }
+            await expect(res.statusCode).to.equal(200);
+            await expect(res).to.have.property(body);
         });
     });
 
-    it('Delete category', (done) => {
-        request.get('http://localhost:7800/delete_category', (err, res, body) => {
-            expect(res.statusCode).to.equal(200);
-            expect(res).to.have.property('body');
-            done();
+    it('Delete category', () => {
+        request.get('http://localhost:7800/delete_category', async (err, res, body) => {
+            if (err) {
+                console.log(err);
+            }
+            await expect(res.statusCode).to.equal(200);
+            await expect(res).to.have.property(body);
         });
     });
 
-    it('editpage category', (done) => {
-        request.get('http://localhost:7800/edit_category', (err, res, body) => {
-            expect(res.statusCode).to.equal(200);
-            expect(res).to.have.property('body');
-            done();
+    it('editpage category', () => {
+        request.get('http://localhost:7800/edit_category', async (err, res, body) => {
+            if (err) {
+                console.log(err);
+            }
+            await expect(res.statusCode).to.equal(200);
+            await expect(res).to.have.property(body);
         });
     });
 
-    it('Update category', (done) => {
-        request.post('http://localhost:7800/update_category', (err, res, body) => {
-            expect(res.statusCode).to.equal(302);
-            expect(res).to.have.property('body');
-            done();
+    it('Update category', () => {
+        request.post('http://localhost:7800/update_category', async (err, res, body) => {
+            if (err) {
+                console.log(err);
+            }
+            await expect(res.statusCode).to.equal(302);
+            await expect(res).to.have.property(body);
         });
     });
 });

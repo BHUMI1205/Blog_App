@@ -104,14 +104,19 @@ const blogAdd = async (req, res) => {
 
 const blogDataAdd = async (req, res) => {
   try {
+    console.log(req.isAuthenticated());
     if (req.isAuthenticated()) {
+      let file = req.files;
+      console.log(req.files);
+      console.log(req.body);
       const { theme, title, detail, date, status } = req.body;
-      const validationError = validateBlogData(title, detail, theme);
+      const validationError = validateBlogData(title, detail, theme, file);
 
       if (validationError) {
-        req.flash("error", validationError);
+        req.flash("success", validationError);
         return res.redirect("back");
       } else {
+
         const uploadPromises = req.files.map(file => {
           return new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream({
@@ -968,6 +973,12 @@ const userRole = async (req, res) => {
   }
 }
 
+const payment = (req, res) => {
+  return res.render('subscription/priceTable', {
+    userId: req.query.userId
+  })
+}
+
 const paypalPayment = async (req, res) => {
   try {
     let userId = req.query.userId;
@@ -990,12 +1001,12 @@ const paypalPayment = async (req, res) => {
             "name": name,
             "currency": "USD",
             "quantity": 1,
-            "price": 2
+            "price": 59
           }]
         },
         "amount": {
           "currency": "USD",
-          "total": "2"
+          "total": "59"
         },
         "description": "Payment using PayPal"
       }]
@@ -1015,6 +1026,7 @@ const paypalPayment = async (req, res) => {
       }
     });
   }
+
   catch (err) {
     console.log(err);
     return false;
@@ -1055,6 +1067,7 @@ export {
   blogDeactive,
   adminRole,
   userRole,
+  payment,
   paypalPayment,
   paypalsuccess,
   paypalcancel

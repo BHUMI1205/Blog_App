@@ -2,7 +2,7 @@ import express from 'express';
 
 const blogRoutes = express.Router();
 
-import { getBlog, blogAdd, blogDataAdd, deleteblog, editblog, blogupdate, blogger, likes, unlike, follow, unfollow, save, unsave, savedblogs, comments, searchData, dateSearchData, getCategoryResult, userPost, blogActive, blogDeactive, adminRole, userRole, paypalPayment, paypalsuccess, paypalcancel } from "../controller/blogcontroller.js";
+import * as blog from "../controller/blogcontroller.js";
 import { checkRole, jwt } from "../middelwares/jwt.js";
 import { multipleimageUpload } from "../middelwares/images.js";
 import { paginationMiddleware } from "../middelwares/pagination.js";
@@ -12,28 +12,34 @@ import { paginationMiddleware } from "../middelwares/pagination.js";
  * @swagger
  * /blog:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Render the user's blogs.
  *     responses:
  *       '200':
  *         description: Successfully rendered the user's blog.
  */
-blogRoutes.get("/blog", jwt, paginationMiddleware, getBlog);
+blogRoutes.get("/blog", jwt, paginationMiddleware, blog.getBlog);
 
 /**
  * @swagger
  * /blog_Add:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Render the blog add page.
  *     responses:
  *       '200':
  *         description: Successfully rendered the blog add page.
  */
-blogRoutes.get("/blog_Add", jwt, blogAdd);
+blogRoutes.get("/blog_Add", jwt, blog.blogAdd);
 
 /**
  * @swagger
  * /add_blogData:
  *   post:
+ *     tags:
+ *     - Blog 
  *     summary: add a blog.
  *     requestBody:
  *       required: true
@@ -70,12 +76,14 @@ blogRoutes.get("/blog_Add", jwt, blogAdd);
  *       '400':
  *         description: Bad request.
  */
-blogRoutes.post("/add_blogData", jwt, multipleimageUpload, blogDataAdd);
+blogRoutes.post("/add_blogData", jwt, multipleimageUpload, blog.blogDataAdd);
 
 /**
  * @swagger
  * /delete_blog?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: delete a blog.
  *     description: Delete blog
  *     parameters:
@@ -91,12 +99,14 @@ blogRoutes.post("/add_blogData", jwt, multipleimageUpload, blogDataAdd);
  *       '400':
  *         description: Bad request.
  */
-blogRoutes.get("/delete_blog", jwt, deleteblog);
+blogRoutes.get("/delete_blog", jwt, blog.deleteblog);
 
 /**
  * @swagger
  * /edit_blog?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Render the blog edit page.
  *     parameters:
  *        - in: query 
@@ -109,12 +119,14 @@ blogRoutes.get("/delete_blog", jwt, deleteblog);
  *       '200':
  *         description: Successfully rendered the blog edit page.
  */
-blogRoutes.get("/edit_blog", jwt, editblog);
+blogRoutes.get("/edit_blog", jwt, blog.editblog);
 
 /**
  * @swagger
  * /update_blog:
  *   post:
+ *     tags:
+ *     - Blog 
  *     summary: add a blog.
  *     requestBody:
  *       required: false
@@ -146,12 +158,14 @@ blogRoutes.get("/edit_blog", jwt, editblog);
  *       '400':
  *         description: Bad request.
  */
-blogRoutes.post("/update_blog", jwt, multipleimageUpload, blogupdate);
+blogRoutes.post("/update_blog", jwt, multipleimageUpload, blog.blogupdate);
 
 /**
  * @swagger
  * /blogger?{bloggerId}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Render the blogger's blogs.
  *     parameters:
  *        - in: query 
@@ -164,12 +178,14 @@ blogRoutes.post("/update_blog", jwt, multipleimageUpload, blogupdate);
  *       '200':
  *         description: Successfully rendered the blogger's blog.
  */
-blogRoutes.get("/blogger", jwt, paginationMiddleware, blogger);
+blogRoutes.get("/blogger", jwt, paginationMiddleware, blog.blogger);
 
 /**
  * @swagger
  * /like?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Like blog .
  *     parameters:
  *        - in: query 
@@ -182,12 +198,14 @@ blogRoutes.get("/blogger", jwt, paginationMiddleware, blogger);
  *       '200':
  *         description: Successfully Like the blog.
  */
-blogRoutes.get("/like", jwt, likes);
+blogRoutes.get("/like", jwt, blog.likes);
 
 /**
  * @swagger
  * /unlike?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Unlike blog .
  *     parameters:
  *        - in: query 
@@ -200,12 +218,14 @@ blogRoutes.get("/like", jwt, likes);
  *       '200':
  *         description: Successfully Unlike the blog.
  */
-blogRoutes.get("/unlike", jwt, unlike);
+blogRoutes.get("/unlike", jwt, blog.unlike);
 
 /**
  * @swagger
  * /follow?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: save blog .
  *     parameters:
  *        - in: query 
@@ -218,12 +238,14 @@ blogRoutes.get("/unlike", jwt, unlike);
  *       '200':
  *         description: Successfully save the blog.
  */
-blogRoutes.get("/follow", jwt, follow);
+blogRoutes.get("/follow", jwt, blog.follow);
 
 /**
  * @swagger
  * /unfollow?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Unsave blog .
  *     parameters:
  *        - in: query 
@@ -236,12 +258,14 @@ blogRoutes.get("/follow", jwt, follow);
  *       '200':
  *         description: Successfully Unsave the blog.
  */
-blogRoutes.get("/unfollow", jwt, unfollow);
+blogRoutes.get("/unfollow", jwt, blog.unfollow);
 
 /**
  * @swagger
  * /save?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: save blog .
  *     parameters:
  *        - in: query 
@@ -254,12 +278,14 @@ blogRoutes.get("/unfollow", jwt, unfollow);
  *       '200':
  *         description: Successfully save the blog.
  */
-blogRoutes.get("/save", jwt, save);
+blogRoutes.get("/save", jwt, blog.save);
 
 /**
  * @swagger
  * /unsave?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Unsave blog .
  *     parameters:
  *        - in: query 
@@ -272,23 +298,27 @@ blogRoutes.get("/save", jwt, save);
  *       '200':
  *         description: Successfully Unsave the blog.
  */
-blogRoutes.get("/unsave", jwt, unsave);
+blogRoutes.get("/unsave", jwt, blog.unsave);
 
 /**
  * @swagger
  * /savedblogs:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Render the user's saved blogs.
  *     responses:
  *       '200':
  *         description: Successfully rendered the user's saved blog.
  */
-blogRoutes.get("/savedblogs", paginationMiddleware, jwt, savedblogs);
+blogRoutes.get("/savedblogs", paginationMiddleware, jwt, blog.savedblogs);
 
 /**
  * @swagger
  * /comment:
  *   post:
+ *     tags:
+ *     - Blog 
  *     summary: comment on blog .
  *     requestBody:
  *       required: true
@@ -308,12 +338,14 @@ blogRoutes.get("/savedblogs", paginationMiddleware, jwt, savedblogs);
  *       '200':
  *         description: Successfully comment on the blog.
  */
-blogRoutes.post("/comment", jwt, comments);
+blogRoutes.post("/comment", jwt, blog.comments);
 
 /**
  * @swagger
  * /searchData:
  *   post:
+ *     tags:
+ *     - Blog 
  *     summary: search on blog.
  *     requestBody:
  *       required: true
@@ -330,12 +362,14 @@ blogRoutes.post("/comment", jwt, comments);
  *       '200':
  *         description: Successfully search the blog.
  */
-blogRoutes.post("/searchData", paginationMiddleware, jwt, searchData);
+blogRoutes.post("/searchData", paginationMiddleware, jwt, blog.searchData);
 
 /**
  * @swagger
  * /dateSearchData:
  *   post:
+ *     tags:
+ *     - Blog 
  *     summary: search on blog.
  *     requestBody:
  *       required: true
@@ -355,12 +389,14 @@ blogRoutes.post("/searchData", paginationMiddleware, jwt, searchData);
  *       '200':
  *         description: Successfully search the blog.
  */
-blogRoutes.post("/dateSearchData", paginationMiddleware, jwt, dateSearchData);
+blogRoutes.post("/dateSearchData", paginationMiddleware, jwt, blog.dateSearchData);
 
 /**
  * @swagger
  * /getCategoryResult?{categoryId}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: get blog by category.
  *     parameters:
  *        - in: query 
@@ -373,13 +409,15 @@ blogRoutes.post("/dateSearchData", paginationMiddleware, jwt, dateSearchData);
  *       '200':
  *         description: Successfully get the blog.
  */
-blogRoutes.get("/getCategoryResult", paginationMiddleware, jwt, getCategoryResult);
+blogRoutes.get("/getCategoryResult", paginationMiddleware, jwt, blog.getCategoryResult);
 
 /**
  * @swagger
  * /userPost?{userId}:
  *   get:
- *     summary: get blog of user.
+ *     tags:
+ *     - Blog 
+ *     summary: get blog of blog.
  *     parameters:
  *        - in: query 
  *          name: userId
@@ -391,12 +429,14 @@ blogRoutes.get("/getCategoryResult", paginationMiddleware, jwt, getCategoryResul
  *       '200':
  *         description: Successfully get the blog.
  */
-blogRoutes.get("/userPost", paginationMiddleware, jwt, userPost);
+blogRoutes.get("/userPost", paginationMiddleware, jwt, blog.userPost);
 
 /**
  * @swagger
  * /blogActive?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Active blog .
  *     parameters:
  *        - in: query 
@@ -409,12 +449,14 @@ blogRoutes.get("/userPost", paginationMiddleware, jwt, userPost);
  *       '200':
  *         description: Successfully Active the blog.
  */
-blogRoutes.get("/blogActive", paginationMiddleware, jwt, blogActive);
+blogRoutes.get("/blogActive", paginationMiddleware, jwt, blog.blogActive);
 
 /**
  * @swagger
  * /blogDeactive?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: Deactive blog .
  *     parameters:
  *        - in: query 
@@ -427,12 +469,14 @@ blogRoutes.get("/blogActive", paginationMiddleware, jwt, blogActive);
  *       '200':
  *         description: Successfully Deactive the blog.
  */
-blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blogDeactive);
+blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blog.blogDeactive);
 
 /**
  * @swagger
  * /adminRole?{id}:
  *   get:
+ *     tags:
+ *     - Blog 
  *     summary: make Admin .
  *     parameters:
  *        - in: query 
@@ -445,13 +489,15 @@ blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blogDeactive);
  *       '200':
  *         description: Successfully change the role.
  */
-blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware, adminRole);
+blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.adminRole);
 
 /**
  * @swagger
  * /userRole?{id}:
  *   get:
- *     summary: make User.
+ *     tags:
+ *     - Blog 
+ *     summary: make blog.
  *     parameters:
  *        - in: query 
  *          name: id
@@ -463,9 +509,10 @@ blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware,
  *       '200':
  *         description: Successfully change the role.
  */
-blogRoutes.get("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, userRole);
-blogRoutes.get("/paypalPayment", jwt, paypalPayment);
-blogRoutes.get("/paypalsuccess", jwt, paypalsuccess);
-blogRoutes.get("/paypalcancel", jwt, paypalcancel);
+blogRoutes.get("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.userRole);
+blogRoutes.get("/paypalPayment", jwt, blog.paypalPayment);
+blogRoutes.get("/payment", jwt, blog.payment);
+blogRoutes.get("/paypalsuccess", jwt, blog.paypalsuccess);
+blogRoutes.get("/paypalcancel", jwt, blog.paypalcancel);
 
 export { blogRoutes };
