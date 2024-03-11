@@ -515,7 +515,8 @@ blogRoutes.get("/payment", jwt, blog.payment);
 blogRoutes.get("/paypalPaymentBasic", jwt, blog.paypalPaymentBasic);
 blogRoutes.get("/paypalPaymentEnterprise", jwt, blog.paypalPaymentEnterprise);
 blogRoutes.get("/paypalPaymentPro", jwt, blog.paypalPaymentPro);
-blogRoutes.get("/paypalsuccess", jwt, blog.paypalsuccess);
-blogRoutes.get("/paypalcancel", jwt, blog.paypalcancel);
+blogRoutes.get("/paypalsuccess", jwt, paginationMiddleware, blog.paypalsuccess);
+blogRoutes.get("/paypalcancel", jwt, paginationMiddleware, blog.paypalcancel);
+blogRoutes.get("/unsubscribe", jwt, paginationMiddleware, blog.unsubscribe);
 
 export { blogRoutes };

@@ -6,10 +6,8 @@ import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import swaggerUi from 'swagger-ui-express';
 import { Server } from 'socket.io';
-import dotenv from 'dotenv';
-import { db } from "./config/mongoose.js";
+import "./config/mongoose.js";
 import passport from "./helper/auth.js";
-import * as cron from 'node-cron';
 
 import blogSwaggerSpecs from './api-docs/blog-swagger.js';
 
@@ -18,19 +16,8 @@ import { userRoutes } from './router/user.js';
 import { categoryRoutes } from './router/category.js';
 import { blogRoutes } from './router/blog.js';
 
-
 const app = express();
 const port = process.env.PORT || 7500;
-
-// dotenv.config();
-
-cron.schedule('05 0 * * *', () => {
-  logMessage();
-});
-
-function logMessage() {
-  console.log('Cron job executed at:', new Date().toLocaleString());
-}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,7 +40,6 @@ app.use((req, res, next) => {
   res.locals.successMessages = req.flash("success");
   next();
 });
-
 
 app.use('/blog-docs', swaggerUi.serve, swaggerUi.setup(blogSwaggerSpecs));
 app.use("/public", express.static(path.join(__dirname, "public")));
@@ -83,8 +69,6 @@ const server = app.listen(port, (err) => {
   }
   console.log("Server is working on port :" + port);
 });
-
-
 
 let io = new Server(server)
 

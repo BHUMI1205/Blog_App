@@ -4,8 +4,6 @@ import { like } from "../model/like.js";
 import { Comment } from "../model/comments.js";
 
 import { v2 as cloudinary } from "cloudinary";
-import dotenv from 'dotenv';
-// dotenv.config();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

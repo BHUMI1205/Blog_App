@@ -30,6 +30,14 @@ const userschema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  IsSubscribed: {
+    type: Boolean,
+    default: false,
+  },
+  subscriptionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "subscription",
+  },
   role: {
     type: String,
     enum: ["superAdmin", "admin", "user"],

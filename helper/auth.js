@@ -1,8 +1,6 @@
 import passport from "passport";
 import GoogleStrategy from 'passport-google-oauth20';
 import {user} from "../model/user.js";
-import dotenv from 'dotenv';
-// dotenv.config();
 
 const authUser = (request, accessToken, refreshToken, profile, done) => {
   return done(null, profile);
@@ -28,7 +26,8 @@ passport.deserializeUser((email, done) => {
   user.findOne({ email: email }).then((user) => {
     user = {
       id: user._id,
-      role: user.role
+      role: user.role,
+      IsSubscribed:user.IsSubscribed
     }
     return done(null, user);
   }).catch((err) => {

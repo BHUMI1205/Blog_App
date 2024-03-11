@@ -14,7 +14,8 @@ const jwt = (req, res, next) => {
       const decodedToken = jsonwebtoken.verify(token, "logindata");
       let obj = {
         id: decodedToken.payload._id,
-        role: decodedToken.payload.role
+        role: decodedToken.payload.role,
+        IsSubscribed: decodedToken.payload.IsSubscribed
       }
       req.user = obj;
       return next();

@@ -5,6 +5,7 @@ import { like } from "../model/like.js";
 import { savedBlog } from "../model/savedBlog.js";
 import { followBlogger } from "../model/followBlogger.js";
 import { Comment } from "../model/comments.js";
+import { subscription } from "../model/subscription.js";
 
 export {
   user,
@@ -13,5 +14,6 @@ export {
   like,
   savedBlog,
   followBlogger,
-  Comment
+  Comment,
+  subscription
 };

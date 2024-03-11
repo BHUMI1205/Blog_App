@@ -2,15 +2,12 @@ import { user, blog, category } from "./models.js";
 import { validateRegisterData, validateNewUserRegisterData } from "../validators/register.js";
 import { validateLoginData, validateEmailData, validatePasswordData } from "../validators/login.js";
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
+import { premiumBlogPostData } from '../Aggregrate/premium_blogPost_aggregaion.js';
 import jwt from "jsonwebtoken";
 import sessionStorage from "sessionstorage-for-nodejs";
 import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
 import logger from '../logger.js';
-import dotenv from 'dotenv';
-
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
-
 import OpenAI from "openai";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -348,33 +345,49 @@ const newUserdata = async (req, res) => {
 
 const msgToAI = async (req, res) => {
   try {
-    const categorydata = await category.find({});
-    const { startIndex, limit } = req.pagination;
+    if (req.isAuthenticated()) {
+      let blogs;
+      const categorydata = await category.find({});
+      const { startIndex, limit } = req.pagination;
 
-    let blogs = await blog.aggregate(blogPostData).skip(startIndex)
-      .limit(limit);
+     if (req.user.IsSubscribed == true) {
+        blogs = await blog.aggregate(premiumBlogPostData(id)).skip(startIndex)
+          .limit(limit);
+      } else {
+        blogs = await blog.aggregate(blogPostData(id)).skip(startIndex)
+          .limit(limit);
+      }
+      let post = [], IsSubscribed;
+      let id = req.user.id;
+      id = new mongoose.Types.ObjectId(id);
+      let IsUserSubscribed = await user.findOne(id);
+      IsSubscribed = IsUserSubscribed.IsSubscribed
 
-    const message = req.body.msg;
-    console.log(message);
+      const message = req.body.msg;
+      console.log(message);
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: message }],
-    });
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: message }],
+      });
 
-    const response = completion.choices[0].message.content;
+      const response = completion.choices[0].message.content;
 
-    return res.render("AdminPanel/index", {
-      categorydata,
-      themes: [],
-      blogs,
-      totalPages: Math.ceil(blogs.length / limit),
-      page: req.pagination.page,
-      user: req.user,
-      limit,
-      response
-    });
+      return res.render("AdminPanel/index", {
+        categorydata,
+        themes: [],
+        blogs,
+        totalPages: Math.ceil(blogs.length / limit),
+        page: req.pagination.page,
+        user: req.user,
+        IsSubscribed: IsSubscribed,
+        limit,
+        response
+      });
 
+    } else {
+      return res.redirect('/')
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });

@@ -1,37 +1,21 @@
-const saveBlogPostData = [
+const premiumBlogPostData = (id) => [
     {
-        $lookup: {
-            from: "blogs",
-            localField: "blogId",
-            foreignField: "_id",
-            as: "blogs",
-        }
-    },
-    {
-        $match: { isPremium: false }
-    },
-    {
-        $unwind: "$blogs",
-    },
-    {
-        $match: {
-            "blogs.status": 1,
-        }
+        $match: { status: true }
     },
     {
         $lookup: {
             from: "categories",
-            localField: "blogs.categoryId",
+            localField: "categoryId",
             foreignField: "_id",
             as: "category",
         }
     },
     {
         $unwind: "$category",
-    }, 
+    },
     {
         $match: {
-            "category.status": 1,
+            "category.status": true,
         }
     },
     {
@@ -48,7 +32,7 @@ const saveBlogPostData = [
     {
         $lookup: {
             from: "comments",
-            localField: "blogId",
+            localField: "_id",
             foreignField: "blogId",
             as: "commentData",
         }
@@ -76,38 +60,64 @@ const saveBlogPostData = [
     {
         $lookup: {
             from: "likes",
-            localField: "blogId",
+            localField: "_id",
             foreignField: "blogId",
             as: "likes",
         }
     },
     {
+        $lookup: {
+            from: "savedblogs",
+            localField: "_id",
+            foreignField: "blogId",
+            as: "saves",
+        }
+    },
+    {
+        $lookup: {
+            from: "followbloggers",
+            localField: "userId",
+            foreignField: "bloggerId",
+            as: "follows",
+        }
+    },
+    {
         $addFields: {
             isLiked: {
-                $in: ["saveUserId", "$likes.userId"],
+                $in: [id, "$likes.userId"]
+            },
+            isSaved: {
+                $in: [id, "$saves.userId"]
+            },
+            isfollowed: {
+                $in: [id, "$follows.followerId"]
             }
         }
     },
     {
         $project: {
             _id: "$_id",
-            blogId :"$blogs._id",
-            title: "$blogs.title",
-            image: "$blogs.image",
-            detail: "$blogs.detail",
-            like: "$blogs.like",
-            comment: "$blogs.comment",
-            postDeleteDate: "$blogs.postDeleteDate",
+            theme: "$theme",
+            title: "$title",
+            image: "$image",
+            detail: "$detail",
+            like: "$like",
+            comment: "$comment",
+            status: "$status",
+            postDeleteDate: "$postDeleteDate",
+            createdAt: "$createdAt",
             theme: "$category.theme",
+            bloggerId: "$userData._id",
             username: "$userData.username",
-            createdAt: "$blogs.createdAt",
             isLiked: "$isLiked",
+            isSaved: "$isSaved",
+            isfollowed: "$isfollowed",
             commentData: "$commentData.comment",
             commentUserData: "$commentUserData.username",
         }
     }
-]
+];
 
 export {
-    saveBlogPostData
+    premiumBlogPostData
 };

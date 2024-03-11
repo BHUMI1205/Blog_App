@@ -8,11 +8,19 @@
           <%= user.id %>
         </p>
 
-        <a href="/payment" class="d-flex justify-content-end">
-          <button class="btn btn-outline-success mt-5 me-5" type="submit">
-            Subscribe
-          </button>
-        </a>
+        <%if(IsSubscribed==false){%>
+          <a href="/payment" class="d-flex justify-content-end">
+            <button class="btn btn-outline-success mt-5 me-5" type="submit">
+              Subscribe
+            </button>
+          </a>
+          <%}else{ %>
+            <a href="/unsubscribe" class="d-flex justify-content-end">
+              <button class="btn btn-outline-success mt-5 me-5" type="submit">
+                Unsubscribe
+              </button>
+            </a>
+            <%}%>
       </div>
       <% }%>
 

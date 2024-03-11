@@ -1,6 +1,6 @@
 import fs from "fs";
 import streamifier from "streamifier";
-import { blog, user, like, followBlogger, savedBlog, category, Comment } from "./models.js";
+import { blog, user, like, followBlogger, savedBlog, category, Comment, subscription } from "./models.js";
 import { scheduleDeletion } from "../middelwares/postdelete.js";
 import { paypal } from "../config/paypal.js";
 import * as cron from 'node-cron';
@@ -10,8 +10,6 @@ import { validateBlogData, validateUpdateBlogData, validateData } from "../valid
 import logger from '../logger.js';
 
 import { v2 as cloudinary } from "cloudinary";
-import dotenv from 'dotenv';
-// dotenv.config();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -23,15 +21,15 @@ import { blogUserPostData } from '../Aggregrate/blogUserPost_aggregation.js';
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 import { saveBlogPostData } from '../Aggregrate/savedBlogPost_aggregation.js';
 import { blogPostLoginData } from '../Aggregrate/blogPostLogin_agggregation.js';
-import { response } from "express";
+import { premiumBlogPostData } from '../Aggregrate/premium_blogPost_aggregaion.js';
 
-
-cron.schedule('* * * * *', () => {
-  logMessage();
+cron.schedule('05 0 * * *', () => {
+  // logMessage();
+  unsubscribe
 });
 
 function logMessage() {
-  // console.log('Cron job executed at:', new Date().toLocaleString());
+  console.log('Cron job executed at:', new Date().toLocaleString());
 }
 
 const getBlog = async (req, res) => {
@@ -75,7 +73,6 @@ const getBlog = async (req, res) => {
           },
         },
       ])
-
       return res.render("Blog/blog", {
         blogs,
         totalPages: Math.ceil(blogs.length / limit),
@@ -148,11 +145,8 @@ const blogAdd = async (req, res) => {
 
 const blogDataAdd = async (req, res) => {
   try {
-    console.log(req.isAuthenticated());
     if (req.isAuthenticated()) {
       let file = req.files;
-      console.log(req.files);
-      console.log(req.body);
       const { theme, title, detail, date, status } = req.body;
       const validationError = validateBlogData(title, detail, theme, file);
 
@@ -206,6 +200,7 @@ const blogDataAdd = async (req, res) => {
         if (!data) {
           logger.warning("Blog is not Added");
           req.flash("error", "Blog is not Added");
+
           return res.redirect("back");
         } else {
           return res.redirect("/blog");
@@ -291,7 +286,7 @@ const editblog = async (req, res) => {
 const blogupdate = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
-      const { id, theme, title, detail, date, status } = req.body;
+      const { id, theme, title, detail, date, status, premium } = req.body;
       let Blogdata = await blog.findById(id);
       const validationError = validateUpdateBlogData(title, detail);
 
@@ -345,6 +340,7 @@ const blogupdate = async (req, res) => {
             image: imageUrls,
             public_id: publicIds,
             postDeleteDate: date,
+            isPremium: premium,
             status: status
           });
           if (data) {
@@ -362,6 +358,7 @@ const blogupdate = async (req, res) => {
           categoryId: theme,
           detail: detail,
           title: title,
+          isPremium: premium,
           status: status,
           date: Blogdata.date,
           image: Blogdata.image,
@@ -394,18 +391,29 @@ const blogger = async (req, res) => {
     const username = await user.findById(req.query.bloggerId);
 
     const { startIndex, limit } = req.pagination;
-    let post = [], blogs;
+    let post = [], blogs, IsSubscribed;
 
     if (req.isAuthenticated()) {
-      let id = req.user.id
-      blogs = await blog
-        .aggregate([{
+      let id = req.user.id;
+      id = new mongoose.Types.ObjectId(id);
+      let IsUserSubscribed = await user.findOne(id);
+      IsSubscribed = IsUserSubscribed.IsSubscribed
+
+      if (req.user.IsSubscribed == true) {
+        blogs = await blog.aggregate([{
           $match: {
             userId: username._id
           }
-        }, ...blogPostData(id)])
-        .skip(startIndex)
-        .limit(limit);
+        }, ...premiumBlogPostData(id)]).skip(startIndex)
+          .limit(limit);
+      } else {
+        blogs = await blog.aggregate([{
+          $match: {
+            userId: username._id
+          }
+        }, ...blogPostData(id)]).skip(startIndex)
+          .limit(limit);
+      }
     } else {
       blogs = await blog
         .aggregate([{
@@ -435,6 +443,7 @@ const blogger = async (req, res) => {
       totalPages: Math.ceil(blogs.length / limit),
       page: req.pagination.page,
       user: req.user,
+      IsSubscribed: IsSubscribed,
       limit,
       response: []
     });
@@ -550,30 +559,34 @@ const follow = async (req, res) => {
 
 const unfollow = async (req, res) => {
   try {
-    let bloggerId = req.query.id;
-    let followerId = req.user.id
-    let existingSave = await followBlogger.findOne({ bloggerId, followerId });
-    if (existingSave) {
+    if (req.isAuthenticated()) {
+      let bloggerId = req.query.id;
+      let followerId = req.user.id
+      let existingSave = await followBlogger.findOne({ bloggerId, followerId });
+      if (existingSave) {
 
-      let followBloggers = await user.findById(bloggerId);
+        let followBloggers = await user.findById(bloggerId);
 
-      if (followBloggers) {
-        await user.findByIdAndUpdate(bloggerId, { $inc: { follower: -1 } });
-        await user.findByIdAndUpdate(followerId, { $inc: { following: -1 } });
-        await followBlogger.findOneAndDelete({ bloggerId, followerId });
+        if (followBloggers) {
+          await user.findByIdAndUpdate(bloggerId, { $inc: { follower: -1 } });
+          await user.findByIdAndUpdate(followerId, { $inc: { following: -1 } });
+          await followBlogger.findOneAndDelete({ bloggerId, followerId });
 
-        logger.info("Blog unfollow successfully")
-        req.flash("success", "Blog unfollow successfully");
-        return res.redirect("back");
+          logger.info("Blog unfollow successfully")
+          req.flash("success", "Blog unfollow successfully");
+          return res.redirect("back");
+        } else {
+          logger.warning("Blog is not unfollow")
+          req.flash("success", "Blog is not unfollow");
+          return res.redirect("back");
+        }
       } else {
-        logger.warning("Blog is not unfollow")
-        req.flash("success", "Blog is not unfollow");
+        logger.warning("You haven't unfollow this post")
+        req.flash("success", "You haven't unfollow this post");
         return res.redirect("back");
       }
     } else {
-      logger.warning("You haven't unfollow this post")
-      req.flash("success", "You haven't unfollow this post");
-      return res.redirect("back");
+      return res.redirect('/')
     }
   } catch (err) {
     logger.error(err)
@@ -727,21 +740,42 @@ const searchData = async (req, res) => {
     });
 
     const themes = categorySearch.map((val) => val.theme);
-    let blogs;
-
+    let blogs, IsSubscribed;
 
     if (req.isAuthenticated()) {
-      let id = req.user.id
-      blogs = await blog.aggregate([
-        ...blogPostData(id), {
-          $match: {
-            $or: [
-              { theme: { $regex: req.body.search } },
-              { title: { $regex: req.body.search } }
-            ]
-          },
-        }
-      ]).skip(startIndex).limit(limit);
+      let id = req.user.id;
+      id = new mongoose.Types.ObjectId(id);
+      let IsUserSubscribed = await user.findOne(id);
+
+      IsSubscribed = IsUserSubscribed.IsSubscribed
+
+
+      if (req.user.IsSubscribed == true) {
+        blogs = await blog.aggregate([
+          ...premiumBlogPostData(id), {
+            $match: {
+              $or: [
+                { theme: { $regex: req.body.search } },
+                { title: { $regex: req.body.search } }
+              ]
+            },
+          }
+        ]).skip(startIndex)
+          .limit(limit);
+      } else {
+        blogs = await blog.aggregate([
+          ...blogPostData(id), {
+            $match: {
+              $or: [
+                { theme: { $regex: req.body.search } },
+                { title: { $regex: req.body.search } }
+              ]
+            },
+          }
+        ]).skip(startIndex)
+          .limit(limit);
+      }
+
     }
     else {
       blogs = await blog.aggregate([
@@ -763,6 +797,7 @@ const searchData = async (req, res) => {
         totalPages: Math.ceil(blogs.length / limit),
         page: req.pagination.page,
         user: req.user,
+        IsSubscribed: IsSubscribed,
         themes,
         limit,
         response: []
@@ -781,32 +816,57 @@ const searchData = async (req, res) => {
 
 const dateSearchData = async (req, res) => {
   try {
-    const { startIndex, limit } = req.pagination;
 
-    const categorydata = await category.find({});
+    if (req.isAuthenticated()) {
+      const { startIndex, limit } = req.pagination;
 
-    const startDate = new Date(req.body.startDate);
+      const categorydata = await category.find({});
 
-    const endDate = new Date(req.body.endDate);
-    let id = req.user.id
-    let blogs = await blog.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: startDate, $lte: endDate }
-        }
-      }, ...blogPostData(id)]).skip(startIndex)
-      .limit(limit);
+      const startDate = new Date(req.body.startDate);
+      const endDate = new Date(req.body.endDate);
 
-    return res.render("AdminPanel/index", {
-      categorydata,
-      blogs,
-      totalPages: Math.ceil(blogs.length / limit),
-      page: req.pagination.page,
-      user: req.user,
-      themes: [],
-      limit,
-      response: []
-    });
+      let IsSubscribed, blogs;
+      let id = req.user.id;
+      id = new mongoose.Types.ObjectId(id);
+      let IsUserSubscribed = await user.findOne(id);
+      IsSubscribed = IsUserSubscribed.IsSubscribed
+
+
+      if (req.user.IsSubscribed == true) {
+        blogs = await blog.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: startDate, $lte: endDate }
+            }
+          }, ...premiumBlogPostData(id)]).skip(startIndex)
+          .limit(limit);
+      } else {
+        blogs = await blog.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: startDate, $lte: endDate }
+            }
+          }, ...blogPostData(id)]).skip(startIndex)
+          .limit(limit);
+      }
+
+
+      return res.render("AdminPanel/index", {
+        categorydata,
+        blogs,
+        totalPages: Math.ceil(blogs.length / limit),
+        page: req.pagination.page,
+        user: req.user,
+        IsSubscribed: IsSubscribed,
+        themes: [],
+        limit,
+        response: []
+      });
+    }
+    else {
+      return res.redirect('/')
+    }
+
 
   }
   catch (err) {
@@ -823,8 +883,7 @@ const getCategoryResult = async (req, res) => {
     const categories = await category.findById(req.query.categoryId);
     let blogData = await blog.find({ categoryId: req.query.categoryId });
     const categorydata = await category.find({});
-    let blogs, themes = [];
-
+    let blogs, themes = [], IsSubscribed;
 
     if (blogData == false) {
       logger.warning("There is no Post of this Category")
@@ -833,12 +892,27 @@ const getCategoryResult = async (req, res) => {
     } else {
       if (req.isAuthenticated()) {
         let id = req.query.id
-        blogs = await blog.aggregate([
-          {
-            $match: {
-              categoryId: categories._id,
-            },
-          }, ...blogPostData(id)]).skip(startIndex).limit(limit);
+        let IsUserSubscribed = await user.findOne(id);
+        IsSubscribed = IsUserSubscribed.IsSubscribed
+
+        if (req.user.IsSubscribed == true) {
+          blogs = await blog.aggregate([
+            {
+              $match: {
+                categoryId: categories._id,
+              }
+            }, ...premiumBlogPostData(id)]).skip(startIndex)
+            .limit(limit);
+        } else {
+          blogs = await blog.aggregate([
+            {
+              $match: {
+                categoryId: categories._id,
+              }
+            }, ...blogPostData(id)]).skip(startIndex)
+            .limit(limit);
+        }
+
       } else {
         blogs = await blog.aggregate([
           {
@@ -855,6 +929,7 @@ const getCategoryResult = async (req, res) => {
       totalPages: Math.ceil(blogs.length / limit),
       page: page,
       user: req.user,
+      IsSubscribed: IsSubscribed,
       themes,
       limit,
       response: []
@@ -870,19 +945,33 @@ const getCategoryResult = async (req, res) => {
 const userPost = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
+      let id = req.user.id;
+      id = new mongoose.Types.ObjectId(id);
+      let IsUserSubscribed = await user.findOne(id);
+      let IsSubscribed = IsUserSubscribed.IsSubscribed
       const categorydata = await category.find({});
 
       const { startIndex, limit } = req.pagination;
       const users = await user.findById(req.query.userId);
 
-      const blogs = await blog
-        .aggregate([{
-          $match: {
-            userId: users._id
-          }
-        }, ...blogPostData])
-        .skip(startIndex)
-        .limit(limit);
+      let blogs;
+      if (req.user.IsSubscribed == true) {
+        blogs = await blog.aggregate([
+          {
+            $match: {
+              userId: users._id
+            }
+          }, ...premiumBlogPostData(id)]).skip(startIndex)
+          .limit(limit);
+      } else {
+        blogs = await blog.aggregate([
+          {
+            $match: {
+              userId: users._id
+            }
+          }, ...blogPostData]).skip(startIndex)
+          .limit(limit);
+      }
 
       let userData = await user.aggregate([
         {
@@ -914,6 +1003,7 @@ const userPost = async (req, res) => {
         totalPages: Math.ceil(blogs.length / limit),
         page: req.pagination.page,
         user: req.user,
+        IsSubscribed: IsSubscribed,
         limit,
         userData,
         response: []
@@ -1024,6 +1114,15 @@ const payment = (req, res) => {
 const paypalPaymentBasic = async (req, res) => {
   try {
 
+    const filter = { _id: new mongoose.Types.ObjectId(req.user.id) };
+    const updateDocument = {
+      $set: {
+        SubscriptionPlan: "free"
+      },
+    };
+    const result = await user.updateOne(filter, updateDocument);
+
+    return res.redirect('/')
   }
 
   catch (err) {
@@ -1034,13 +1133,14 @@ const paypalPaymentBasic = async (req, res) => {
 
 const paypalPaymentPro = async (req, res) => {
   try {
+    let userId = req.user.id
     const paymentData = {
       "intent": "SALE",
       "payer": {
         "payment_method": "paypal"
       },
       "redirect_urls": {
-        "return_url": `http://localhost:7800/paypalsuccess`,
+        "return_url": `http://localhost:7800/paypalsuccess?userId=${userId}&subscriptionPlan=pro`,
         "cancel_url": "http://localhost:7800/paypalcancel"
       },
       "transactions": [{
@@ -1051,6 +1151,7 @@ const paypalPaymentPro = async (req, res) => {
         "description": "Payment using PayPal"
       }]
     };
+
     paypal.payment.create(paymentData, (err, payment) => {
       if (err) {
         console.log(err.response);
@@ -1064,24 +1165,22 @@ const paypalPaymentPro = async (req, res) => {
         return res.status(500).send("Approval URL not found in PayPal response");
       }
     });
-  }
-
-  catch (err) {
+  } catch (err) {
     console.log(err);
-    return false;
+    return res.status(500).send("Error creating PayPal payment");
   }
 }
 
 const paypalPaymentEnterprise = async (req, res) => {
   try {
-
+    let userId = req.user.id
     const paymentData = {
       "intent": "SALE",
       "payer": {
         "payment_method": "paypal"
       },
       "redirect_urls": {
-        "return_url": `http://localhost:7800/paypalsuccess`,
+        "return_url": `http://localhost:7800/paypalsuccess?userId=${userId}&subscriptionPlan=enterprise`,
         "cancel_url": "http://localhost:7800/paypalcancel"
       },
       "transactions": [{
@@ -1100,7 +1199,6 @@ const paypalPaymentEnterprise = async (req, res) => {
       } else {
         for (let i = 0; i < payment.links.length; i++) {
           if (payment.links[i].rel === "approval_url") {
-            console.log(payment.links[i].rel);
             return res.redirect(payment.links[i].href);
           }
         }
@@ -1114,13 +1212,66 @@ const paypalPaymentEnterprise = async (req, res) => {
 }
 
 const paypalsuccess = async (req, res) => {
-  req.flash("success", "transaction completed")
-  return res.redirect('/')
+  try {
+    let dt = new Date();
+    let subscriptionEnd = new Date(dt.setMonth(dt.getMonth() + 1));
+
+    await subscription.create({
+      subscriptionPlan: req.query.subscriptionPlan,
+      token: req.query.token,
+      transactionId: req.query.paymentId,
+      payerId: req.query.PayerID,
+      userId: req.query.userId,
+      IspaymentPending: false,
+      subscriptionEnd: subscriptionEnd
+    })
+
+
+    let data = await subscription.find({}).sort({ _id: -1 }).limit(1);
+
+    let userId = req.query.userId
+    userId = new mongoose.Types.ObjectId(userId)
+
+    await user.findOneAndUpdate({ _id: userId }, { '$set': { 'subscriptionId': data[0]._id, IsSubscribed: true } });
+
+    req.flash("success", "transaction completed")
+    return res.redirect('/')
+  }
+  catch (error) {
+    console.error('Error handling PayPal success:', error);
+    req.flash("error", "Error handling PayPal success");
+    return res.redirect('/');
+  }
 }
 
 const paypalcancel = async (req, res) => {
   req.flash("success", "transaction canceled")
   return res.redirect('/')
+}
+
+const unsubscribe = async (req, res) => {
+  try {
+
+    let userId;
+
+    await subscription.deleteMany({ subscriptionEnd: { $lt: new Date() } })
+
+    await user.findByIdAndUpdate(userId, { '$unset': { subscriptionId: "" } });
+
+    if (req.isAuthenticated()) {
+      userId = req.user.id;
+
+      await user.findByIdAndUpdate(userId, { '$unset': { subscriptionId: "" } });
+      await user.findOneAndUpdate({ _id: userId }, { '$set': { IsSubscribed: false } });
+      await subscription.findOneAndDelete({ userId: userId })
+
+      return res.redirect('back')
+    }
+
+  } catch (err) {
+    console.log(err);
+    return false
+  }
 }
 
 export {
@@ -1153,5 +1304,6 @@ export {
   paypalPaymentPro,
   paypalPaymentEnterprise,
   paypalsuccess,
-  paypalcancel
+  paypalcancel,
+  unsubscribe
 };
