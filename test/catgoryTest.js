@@ -15,7 +15,7 @@ describe('category', () => {
     it('Add category', () => {
         request.post('http://localhost:7800/add_categoryData', async (err, res, body) => {
             if (err) {
-                console.log(err);
+                console.log(err); 
             }
             await expect(res.statusCode).to.equal(302);
             await expect(res).to.have.property(body);

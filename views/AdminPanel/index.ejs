@@ -176,9 +176,11 @@
                                           <span class="date">
                                             <%=val.theme%>
                                           </span>
-                                          <span class="mx-1">&bullet;</span> <span>
-                                            <%=val.createdAt.toDateString()%>
-                                          </span>
+                                          <% if (val.createdAt instanceof Date) { %>
+                                            <span class="mx-1">&bullet;</span> <span>
+                                              <%=val.createdAt.toDateString()%>
+                                            </span>
+                                            <% } %>
                                         </div>
                           </div>
                           <h3><a href="#">

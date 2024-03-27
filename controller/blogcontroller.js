@@ -1254,10 +1254,13 @@ const unsubscribe = async (req, res) => {
 
     let userId;
 
-    await subscription.deleteMany({ subscriptionEnd: { $lt: new Date() } })
-
-    await user.findByIdAndUpdate(userId, { '$unset': { subscriptionId: "" } });
-
+    let subscription = await subscription.deleteMany({ subscriptionEnd: { $lt: new Date() } })
+    if (subscription) {
+      subscription.map((val) => {
+        user.findByIdAndUpdate(val.userId, { '$unset': { subscriptionId: "" } });
+        user.findOneAndUpdate({ _id: val.userId }, { '$set': { IsSubscribed: false } });
+      })
+    }
     if (req.isAuthenticated()) {
       userId = req.user.id;
 
