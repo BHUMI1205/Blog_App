@@ -9,31 +9,8 @@ import { multipleimageUpload } from "../middelwares/images.js";
 import { paginationMiddleware } from "../middelwares/pagination.js";
 
 
-/**
- * @swagger
- * /blog:
- *   get:
- *     tags:
- *     - Blog 
- *     summary: Render the user's blogs.
- *     responses:
- *       '200':
- *         description: Successfully rendered the user's blog.
- */
 blogRoutes.get("/blog", jwt, paginationMiddleware, blog.getBlog);
 blogRoutes.get("/singleBlogPost", jwt, blog.singleBlogPost);
-
-/**
- * @swagger
- * /blog_Add:
- *   get:
- *     tags:
- *     - Blog 
- *     summary: Render the blog add page.
- *     responses:
- *       '200':
- *         description: Successfully rendered the blog add page.
- */
 blogRoutes.get("/blog_Add", jwt, blog.blogAdd);
 
 /**
@@ -83,7 +60,7 @@ blogRoutes.post("/add_blogData", jwt, multipleimageUpload, blog.blogDataAdd);
 /**
  * @swagger
  * /delete_blog?{id}:
- *   get:
+ *   delete:
  *     tags:
  *     - Blog 
  *     summary: delete a blog.
@@ -101,33 +78,15 @@ blogRoutes.post("/add_blogData", jwt, multipleimageUpload, blog.blogDataAdd);
  *       '400':
  *         description: Bad request.
  */
-blogRoutes.get("/delete_blog", jwt, blog.deleteblog);
-
-/**
- * @swagger
- * /edit_blog?{id}:
- *   get:
- *     tags:
- *     - Blog 
- *     summary: Render the blog edit page.
- *     parameters:
- *        - in: query 
- *          name: id
- *          schema:
- *              type: string
- *          required: true
- *          description: string id of blog to delete
- *     responses:
- *       '200':
- *         description: Successfully rendered the blog edit page.
- */
+blogRoutes.delete("/delete_blog", jwt, blog.deleteblog);
 blogRoutes.get("/edit_blog", jwt, blog.editblog);
 
 /**
  * @swagger
  * /update_blog:
- *   post:
+ *   put:
  *     tags:
+ * 
  *     - Blog 
  *     summary: add a blog.
  *     requestBody:
@@ -160,26 +119,7 @@ blogRoutes.get("/edit_blog", jwt, blog.editblog);
  *       '400':
  *         description: Bad request.
  */
-blogRoutes.post("/update_blog", jwt, multipleimageUpload, blog.blogupdate);
-
-/**
- * @swagger
- * /blogger?{bloggerId}:
- *   get:
- *     tags:
- *     - Blog 
- *     summary: Render the blogger's blogs.
- *     parameters:
- *        - in: query 
- *          name: username
- *          schema:
- *              type: ObjectId
- *          required: true 
- *          description: string id of blog
- *     responses:
- *       '200':
- *         description: Successfully rendered the blogger's blog.
- */
+blogRoutes.put("/update_blog", jwt, multipleimageUpload, blog.blogupdate);
 blogRoutes.get("/blogger", jwt, paginationMiddleware, blog.blogger);
 
 /**
@@ -301,18 +241,6 @@ blogRoutes.get("/save", jwt, blog.save);
  *         description: Successfully Unsave the blog.
  */
 blogRoutes.get("/unsave", jwt, blog.unsave);
-
-/**
- * @swagger
- * /savedblogs:
- *   get:
- *     tags:
- *     - Blog 
- *     summary: Render the user's saved blogs.
- *     responses:
- *       '200':
- *         description: Successfully rendered the user's saved blog.
- */
 blogRoutes.get("/savedblogs", paginationMiddleware, jwt, blog.savedblogs);
 
 /**
@@ -476,7 +404,7 @@ blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blog.blogDeactive);
 /**
  * @swagger
  * /adminRole?{id}:
- *   get:
+ *   put:
  *     tags:
  *     - Blog 
  *     summary: make Admin .
@@ -491,12 +419,12 @@ blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blog.blogDeactive);
  *       '200':
  *         description: Successfully change the role.
  */
-blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.adminRole);
+blogRoutes.put("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.adminRole);
 
 /**
  * @swagger
  * /userRole?{id}:
- *   get:
+ *   put:
  *     tags:
  *     - Blog 
  *     summary: make blog.
@@ -511,7 +439,8 @@ blogRoutes.get("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware,
  *       '200':
  *         description: Successfully change the role.
  */
-blogRoutes.get("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.userRole);
+blogRoutes.put("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.userRole);
+
 blogRoutes.get("/payment", jwt, blog.payment);
 blogRoutes.get("/paypalPaymentBasic", jwt, blog.paypalPaymentBasic);
 blogRoutes.get("/paypalPaymentEnterprise", jwt, blog.paypalPaymentEnterprise);

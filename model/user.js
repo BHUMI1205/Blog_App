@@ -54,22 +54,13 @@ userschema.pre('save', function (next) {
   // only hash the password if it has been modified (or is new)
   if (!user.isModified('password')) return next();
 
-  // generate a salt
-  bcrypt.genSalt(10, function (err, salt) {
-    if (err) return next(err);
+  const salt = bcrypt.genSalt(10);
+  const hashedPassword = bcrypt.hash(user.password, salt);
+  user.password = hashedPassword;
+  next();
 
-    // hash the password along with our new salt
-    bcrypt.hash(user.password, salt, function (err, hash) {
-      if (err) return next(err);
-
-      // override the cleartext password with the hashed one
-      user.password = hash;
-      user.verify = hash
-      next();
-    });
-  });
 });
 
-const user = mongoose.model("user", userschema);
+const user = mongoose.model("user", userschema); 
 
 export { user };

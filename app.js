@@ -15,6 +15,7 @@ import { routes } from './router/main.js';
 import { userRoutes } from './router/user.js';
 import { categoryRoutes } from './router/category.js';
 import { blogRoutes } from './router/blog.js';
+import { seedAdmin } from './seeder/admin-seeder.js';
 
 const app = express();
 const port = process.env.PORT || 7500;
@@ -62,6 +63,12 @@ app.get(
   }
 );
 
+seedAdmin().then(() => {
+  console.log("Admin seeding completed");
+}).catch((err) => {
+  console.error("Error seeding admin:", err);
+});
+
 const server = app.listen(port, (err) => {
   if (err) {
     console.log(err);
@@ -71,7 +78,7 @@ const server = app.listen(port, (err) => {
 });
 
 let io = new Server(server)
- 
+
 io.on('connection', (socket) => {
 
   socket.on('userId', (userId) => {

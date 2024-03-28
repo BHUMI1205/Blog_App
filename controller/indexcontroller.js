@@ -57,13 +57,14 @@ const blogPosts = async (req, res) => {
       // const myKeyValue = await client.get('blogs');
     }
 
+
     return res.render("AdminPanel/index", {
       categorydata,
       themes: [],
       blogs,
       totalPages: Math.ceil(blogs.length / limit),
       page: req.pagination.page,
-      user: req.user,
+      user: req.user, 
       IsSubscribed: IsSubscribed,
       limit,
       response: []
