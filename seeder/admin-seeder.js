@@ -3,7 +3,8 @@ import bcrypt from "bcrypt";
 import { user } from '../model/user.js'
 
 async function seedAdmin() {
-    await mongoose.connect('mongodb://127.0.0.1/Blogs');
+    // await mongoose.connect('mongodb://127.0.0.1/Blogs');
+    await mongoose.connect('process.env.MONGO_URI');
 
     const existingAdmin = await user.findOne({ role: "superAdmin" });
 
