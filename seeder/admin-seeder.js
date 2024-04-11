@@ -13,7 +13,7 @@ async function seedAdmin() {
             lname: "Admin User",
             username: "Admin User",
             email: "admin@gmail.com",
-            password: "adminpassword", 
+            password: "aaaaaa",  
             role: "superAdmin",
         };
 
@@ -26,7 +26,7 @@ async function seedAdmin() {
         console.log("Admin user created successfully");
     } else {
         console.log("Admin user already exists");
-    }
+    } 
 
 }
 
