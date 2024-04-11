@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-// mongoose.connect(process.env.MONGO_URI); 
-await mongoose.connect('mongodb://127.0.0.1/blog');
+mongoose.connect(process.env.MONGO_URI); 
+// await mongoose.connect('mongodb://127.0.0.1/Blog');
 
 const db = mongoose.connection; 
 
