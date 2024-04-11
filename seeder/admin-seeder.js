@@ -3,8 +3,8 @@ import bcrypt from "bcrypt";
 import { user } from '../model/user.js'
 
 async function seedAdmin() {
-    // await mongoose.connect('mongodb://127.0.0.1/Blogs');
-    await mongoose.connect('process.env.MONGO_URI');
+    await mongoose.connect('mongodb://127.0.0.1/blog');
+    // await mongoose.connect(process.env.MONGO_URI);
 
     const existingAdmin = await user.findOne({ role: "superAdmin" });
 
@@ -14,9 +14,9 @@ async function seedAdmin() {
             lname: "Admin User",
             username: "Admin User",
             email: "admin@gmail.com",
-            password: "aaaaaa",  
+            password: "aaaaaa",   
             role: "superAdmin",
-        };
+        }; 
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(adminCredentials.password, salt);
