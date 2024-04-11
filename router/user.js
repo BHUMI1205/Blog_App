@@ -141,7 +141,7 @@ userRoutes.post("/otpdata", user.otpdata);
 /**
  * @swagger
  * /new_password:
- *   put:
+ *   post:
  *     tags:
  *       - User
  *     summary: Change user password.
@@ -168,7 +168,7 @@ userRoutes.post("/otpdata", user.otpdata);
  *         description: Bad request.
  */
 userRoutes.get("/change_password", user.changepassword);
-userRoutes.put("/new_password", user.newpassword);
+userRoutes.post("/new_password", user.newpassword);
 
 /**
  * @swagger

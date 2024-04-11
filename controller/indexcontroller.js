@@ -1,5 +1,4 @@
 import { blog, category, user } from "./models.js";
-import { scheduleDeletion } from "../middelwares/postdelete.js";
 import logger from '../logger.js';
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
 import { blogPostLoginData } from '../Aggregrate/blogPostLogin_agggregation.js';
@@ -42,16 +41,6 @@ const blogPosts = async (req, res) => {
         blogs = await blog.aggregate(blogPostLoginData).skip(startIndex)
           .limit(limit);
       }
-      for (let i = 0; i < blogs.length; i++) {
-        if (blogs[i].postDeleteDate != null && blogs[i].postDeleteDate != undefined) {
-          let obj = {
-            id: blogs[i]._id,
-            postDeleteDate: blogs[i].postDeleteDate,
-          };
-          post.push(obj);
-        }
-      }
-      scheduleDeletion(post);
 
       // await client.set('blogs', JSON.stringify(blogs));
       // const myKeyValue = await client.get('blogs');

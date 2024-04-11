@@ -1,7 +1,5 @@
-import { blog } from "../model/blog.js";
-import { followBlogger } from "../model/followBlogger.js";
-import { like } from "../model/like.js";
-import { Comment } from "../model/comments.js";
+import { blog, like, followBlogger, Comment } from "../controller/models.js";
+import * as cron from 'node-cron';
 
 import { v2 as cloudinary } from "cloudinary";
 
@@ -13,45 +11,49 @@ cloudinary.config({
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const scheduleDeletion = async (post) => {
-  for (let i = 0; i < post.length; i++) {
-    const jobDate = new Date(post[i].postDeleteDate);
-    const now = new Date();
-    // If the expiration date is in the future, calculate the delay
-    const delayMilliseconds = jobDate > now ? jobDate - now : 0;
-    // Delay before scheduling the job
-    await delay(delayMilliseconds);
-    // Schedule the job after the delay
-    try {
-      if (jobDate != "") {
-        if (post[i].postDeleteDate != '') {
-          let imageFile = await blog.findById(post[i].id);
-          if (imageFile) {
-            let data = await blog.findByIdAndDelete(post[i].id);
-            if (data) {
-              let publicId = imageFile.public_id;
-              for (let i = 0; i < publicId.length; i++) {
-                cloudinary.uploader.destroy(publicId[i]);
-              }
-              let comment = await Comment.deleteMany({ blogId: post[i].id });
-              let Like = await like.deleteMany({ blogId: post[i].id });
-              let savedBlog = await followBlogger.deleteMany({ blogId: post[i].id });
-              if (comment, Like, savedBlog) {
-                console.log("Blog is Deleted");
-                req.flash("success", "Blog is Deleted");
-                return res.redirect("back");
-              } else {
-                req.flash("success", "Blog is not Deleted");
-                return res.redirect("back");
-              }
+cron.schedule('05 0 * * *', () => {
+  scheduleDeletion
+})
+
+const scheduleDeletion = async () => {
+
+  let post = await blog.aggregate([
+    {
+      $match: {
+        postDeleteDate: { $lte: new Date() }
+      }
+    }
+  ]);
+  if (post != false) {
+    for (let i = 0; i < post.length; i++) {
+      try {
+        let imageFile = await blog.findById(post[i]._id);
+        if (imageFile) {
+          let data = await blog.findByIdAndDelete(post[i]._id);
+          if (data) {
+            let publicId = imageFile.public_id;
+            for (let i = 0; i < publicId.length; i++) {
+              cloudinary.uploader.destroy(publicId[i]);
+            }
+            let comment = await Comment.deleteMany({ blogId: post[i]._id });
+            let Like = await like.deleteMany({ blogId: post[i]._id });
+            let savedBlog = await followBlogger.deleteMany({ blogId: post[i]._id });
+            if (comment, Like, savedBlog) {
+              console.log("Blog is Deleted");
+              return res.redirect("back");
+            } else {
+              console.log("Blog is Deleted");
+              return res.redirect("back");
             }
           }
         }
       }
-    } catch (error) {
-      console.error("Error deleting post:", error);
+      catch (error) {
+        console.error("Error deleting post:", error);
+      }
     }
-  };
+  }
 }
+
 
 export { scheduleDeletion };

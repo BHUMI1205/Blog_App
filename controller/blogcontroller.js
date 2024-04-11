@@ -1,7 +1,6 @@
 import fs from "fs";
 import streamifier from "streamifier";
 import { blog, user, like, followBlogger, savedBlog, category, Comment, subscription } from "./models.js";
-import { scheduleDeletion } from "../middelwares/postdelete.js";
 import { paypal } from "../config/paypal.js";
 import * as cron from 'node-cron';
 import { mongoose } from 'mongoose';
@@ -286,7 +285,10 @@ const editblog = async (req, res) => {
 const blogupdate = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
-      const { id, theme, title, detail, date, status, premium } = req.body;
+      let { id, theme, title, detail, date, status, premium } = req.body;
+      if (date != false ) {
+        date = new Date(date)
+      }
       let Blogdata = await blog.findById(id);
       const validationError = validateUpdateBlogData(title, detail);
 
@@ -360,10 +362,9 @@ const blogupdate = async (req, res) => {
           title: title,
           isPremium: premium,
           status: status,
-          date: Blogdata.date,
+          postDeleteDate: date,
           image: Blogdata.image,
           public_id: Blogdata.publicIds,
-
         });
         if (data) {
           logger.info("Blog is Updated");
@@ -379,7 +380,7 @@ const blogupdate = async (req, res) => {
       return res.redirect('back')
     }
   } catch (err) {
-    logger.error(err);
+    console.log(err);
     logger.error(err);
     return false;
   }
@@ -424,17 +425,6 @@ const blogger = async (req, res) => {
         .skip(startIndex)
         .limit(limit);
     }
-    for (let i = 0; i < blogs.length; i++) {
-      if (blogs[i].postDeleteDate != null && blogs[i].postDeleteDate != undefined) {
-        let obj = {
-          id: blogs[i]._id,
-          postDeleteDate: blogs[i].postDeleteDate,
-        };
-        post.push(obj);
-      }
-    }
-
-    scheduleDeletion(post);
 
     return res.render("AdminPanel/index", {
       categorydata,

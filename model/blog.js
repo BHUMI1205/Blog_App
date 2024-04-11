@@ -35,6 +35,7 @@ const blogSchema = mongoose.Schema({
   },
   postDeleteDate: {
     type: Date,
+    index:true
   },
   status: {
     type: Boolean,
@@ -45,9 +46,10 @@ const blogSchema = mongoose.Schema({
     default: false
   }
 },
-  {
+  { 
     timestamps: true
   });
+
 
 const blog = mongoose.model("blog", blogSchema);
 

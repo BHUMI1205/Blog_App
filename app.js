@@ -15,6 +15,7 @@ import { routes } from './router/main.js';
 import { userRoutes } from './router/user.js';
 import { categoryRoutes } from './router/category.js';
 import { blogRoutes } from './router/blog.js';
+import { scheduleDeletion } from './middelwares/postdelete.js';
 import { seedAdmin } from './seeder/admin-seeder.js';
 
 const app = express();
@@ -41,7 +42,7 @@ app.use((req, res, next) => {
   res.locals.successMessages = req.flash("success");
   next();
 });
-
+ 
 app.use('/blog-docs', swaggerUi.serve, swaggerUi.setup(blogSwaggerSpecs));
 app.use("/public", express.static(path.join(__dirname, "public")));
 
@@ -50,6 +51,7 @@ app.use("/", userRoutes);
 app.use("/", categoryRoutes);
 app.use("/", blogRoutes);
 
+scheduleDeletion()
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })

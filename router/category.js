@@ -71,7 +71,7 @@ categoryRoutes.get("/edit_category", jwt, checkRole('superAdmin'), category.edit
 /**
  * @swagger
  * /update_category?{id}:
- *   put:
+ *   post:
  *     tags:
  *       - Category
  *     summary: update a category.
@@ -101,6 +101,6 @@ categoryRoutes.get("/edit_category", jwt, checkRole('superAdmin'), category.edit
  *       '400':
  *         description: Bad request.
  */
-categoryRoutes.put("/update_category", jwt, checkRole('superAdmin'), imagedata, category.categoryupdate);
+categoryRoutes.post("/update_category", jwt, checkRole('superAdmin'), imagedata, category.categoryupdate);
 
 export { categoryRoutes };

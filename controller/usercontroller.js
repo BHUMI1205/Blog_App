@@ -350,7 +350,7 @@ const msgToAI = async (req, res) => {
       const categorydata = await category.find({});
       const { startIndex, limit } = req.pagination;
 
-     if (req.user.IsSubscribed == true) {
+      if (req.user.IsSubscribed == true) {
         blogs = await blog.aggregate(premiumBlogPostData(id)).skip(startIndex)
           .limit(limit);
       } else {
@@ -367,7 +367,7 @@ const msgToAI = async (req, res) => {
       console.log(message);
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo', 
+        model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: message }],
       });
 

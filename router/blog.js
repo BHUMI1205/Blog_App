@@ -84,7 +84,7 @@ blogRoutes.get("/edit_blog", jwt, blog.editblog);
 /**
  * @swagger
  * /update_blog:
- *   put:
+ *   post:
  *     tags:
  * 
  *     - Blog 
@@ -119,7 +119,7 @@ blogRoutes.get("/edit_blog", jwt, blog.editblog);
  *       '400':
  *         description: Bad request.
  */
-blogRoutes.put("/update_blog", jwt, multipleimageUpload, blog.blogupdate);
+blogRoutes.post("/update_blog", jwt, multipleimageUpload, blog.blogupdate);
 blogRoutes.get("/blogger", jwt, paginationMiddleware, blog.blogger);
 
 /**
@@ -404,7 +404,7 @@ blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blog.blogDeactive);
 /**
  * @swagger
  * /adminRole?{id}:
- *   put:
+ *   post:
  *     tags:
  *     - Blog 
  *     summary: make Admin .
@@ -419,12 +419,12 @@ blogRoutes.get("/blogDeactive", paginationMiddleware, jwt, blog.blogDeactive);
  *       '200':
  *         description: Successfully change the role.
  */
-blogRoutes.put("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.adminRole);
+blogRoutes.post("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.adminRole);
 
 /**
  * @swagger
  * /userRole?{id}:
- *   put:
+ *   post:
  *     tags:
  *     - Blog 
  *     summary: make blog.
@@ -439,7 +439,7 @@ blogRoutes.put("/adminRole", jwt, checkRole('superAdmin'), paginationMiddleware,
  *       '200':
  *         description: Successfully change the role.
  */
-blogRoutes.put("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.userRole);
+blogRoutes.post("/userRole", jwt, checkRole('superAdmin'), paginationMiddleware, blog.userRole);
 
 blogRoutes.get("/payment", jwt, blog.payment);
 blogRoutes.get("/paypalPaymentBasic", jwt, blog.paypalPaymentBasic);
