@@ -25,7 +25,7 @@ import { premiumBlogPostData } from '../Aggregrate/premium_blogPost_aggregaion.j
 cron.schedule('05 0 * * *', () => {
   // logMessage();
   unsubscribe
-});
+})
 
 function logMessage() {
   console.log('Cron job executed at:', new Date().toLocaleString());
