@@ -10,7 +10,7 @@
             </button>
         </div>
         <% } %>
-        
+
           <table class="table w-50 mx-auto my-5">
             <thead>
               <tr>
@@ -54,15 +54,6 @@
             </tbody>
           </table>
           <%}else{%>
-            <a href="/blog_Add">
-              <button type="button" class="btn btn-outline-primary mb-5 text-uppercase fw-bold">Add
-                Blogs</button>
-            </a>
-
-            <a href="/savedblogs">
-              <button type="button" class="btn btn-outline-primary mb-5 text-uppercase fw-bold">Saved
-                Blogs</button>
-            </a>
 
             <!-- <div class="d-flex align-items-center">
               <%blogs.map((val)=>{%>
@@ -203,11 +194,13 @@
                   </li>
                   <li class="page-item">
                     <a class="page-link" href="?page=<%= parseInt(page) %>">
-                      <%= page %>
+                      <%if(blogs.length>6){%>
+                        <%= page %>
+                          <%}%>
                     </a>
                   </li>
                   <li class="page-item">
-                    <% if (blogs.length===limit) { %>
+                    <% if (blogs.length>6) { %>
                       <a class="page-link" href="?page=<%= parseInt(page) + 1 %>">Next</a>
                       <% } %>
 

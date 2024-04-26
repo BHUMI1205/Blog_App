@@ -93,6 +93,24 @@
             <% }) %>
         </div>
       </div>
+
+      <div class="nav-item dropdown">
+        <a class="nav-item" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
+          <i class="bi bi-list h5"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="/blog_Add">Add Blogs</a>
+          <a class="dropdown-item" href="/savedblogs">Saved Blogs</a>
+          <div class="dropdown-divider"></div>
+          <%if(user){%>
+            <a class="dropdown-item" href="/logout">Logout</a>
+            <%}else{%>
+              <a class="dropdown-item" href="/login">Login</a>
+              <%}%>
+        </div>
+      </div>
+
       <% if (user !=undefined ) { %>
 
         <div class="d-flex">
@@ -114,14 +132,8 @@
           </form>
         </div>
 
-        <div class="position-relative d-flex align-items-center">
-          <a href="/logout" class="logout-link">Logout <i class="bi bi-box-arrow-right"></i></a>
-        </div>
-        <% } else { %>
-          <div class="position-relative d-flex align-items-center">
-            <a href="/login" class="logout-link">Login</a>
-          </div>
-          <% } %>
+
+        <% } %>
     </div>
   </header>
   <!-- End Header -->

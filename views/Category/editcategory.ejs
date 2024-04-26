@@ -33,12 +33,12 @@
         <div class="mb-4">
             <label class="form-label">Select Status of your Category</label>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" <% if (data.status === true) { %> checked <% } %> />
+                <input class="form-check-input" type="radio" name="status" value="true" <% if (data.status === true) { %> checked <% } %> />
                 <label class="form-check-label">Active</label>
             </div>
         
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" <% if (data.status === false) { %> checked <% } %> />
+                <input class="form-check-input" type="radio" name="status" value="false" <% if (data.status === false) { %> checked <% } %> />
                 <label class="form-check-label">Deactive</label>
             </div>
         </div>
@@ -46,8 +46,8 @@
         <!-- Submit button -->
         <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
       </form>
-    </div>
+    </div> 
   </div>
-  </div>
+  </div> 
 
   <%- include('../AdminPanel/footer') %>

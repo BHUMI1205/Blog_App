@@ -104,3 +104,4 @@ categoryRoutes.get("/edit_category", jwt, checkRole('superAdmin'), category.edit
 categoryRoutes.post("/update_category", jwt, checkRole('superAdmin'), imagedata, category.categoryupdate);
 
 export { categoryRoutes };
+ 

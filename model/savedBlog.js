@@ -7,7 +7,7 @@ const savedBlogSchema = mongoose.Schema({
   },
   blogId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "blog",
   },
 },
   {
@@ -16,4 +16,4 @@ const savedBlogSchema = mongoose.Schema({
 
 const savedBlog = mongoose.model("savedBlog", savedBlogSchema);
 
-export {savedBlog};
+export { savedBlog };

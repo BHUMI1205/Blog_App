@@ -8,7 +8,7 @@
           <%= user.id %>
         </p>
 
-        <%if(IsSubscribed==false){%>
+        <%if(user.IsSubscribed==false){%>
           <a href="/payment" class="d-flex justify-content-end">
             <button class="btn btn-outline-success mt-5 me-5" type="submit">
               Subscribe
@@ -61,8 +61,7 @@
                       <a href="#" class="img-bg d-flex align-items-end"
                         style="background-image: url('public/img/post-slide-1.jpg');">
                         <div class="img-bg-inner">
-                          <h2>The Best Homemade Masks for Face (keep the Pimples
-                            Away)</h2>
+                          <h2>The Best Homemade Masks for Face (keep the Pimples Away)</h2>
                           <p>Lorem ipsum dolor sit amet, consectetur adipisicing
                             elit. Quidem neque est mollitia! Beatae minima
                             assumenda repellat harum vero, officiis ipsam magnam
@@ -76,8 +75,7 @@
                       <a href="#" class="img-bg d-flex align-items-end"
                         style="background-image: url('public/img/post-slide-2.jpg');">
                         <div class="img-bg-inner">
-                          <h2>17 Pictures of Medium Length Hair in Layers That
-                            Will Inspire Your New Haircut</h2>
+                          <h2>17 Pictures of Medium Length Hair in Layers That Will Inspire Your New Haircut</h2>
                           <p>Lorem ipsum dolor sit amet, consectetur adipisicing
                             elit. Quidem neque est mollitia! Beatae minima
                             assumenda repellat harum vero, officiis ipsam magnam
@@ -91,8 +89,7 @@
                       <a href="#" class="img-bg d-flex align-items-end"
                         style="background-image: url('public/img/post-slide-3.jpg');">
                         <div class="img-bg-inner">
-                          <h2>13 Amazing Poems from Shel Silverstein with Valuable
-                            Life Lessons</h2>
+                          <h2>13 Amazing Poems from Shel Silverstein with Valuable Life Lessons</h2>
                           <p>Lorem ipsum dolor sit amet, consectetur adipisicing
                             elit. Quidem neque est mollitia! Beatae minima
                             assumenda repellat harum vero, officiis ipsam magnam
@@ -106,8 +103,7 @@
                       <a href="#" class="img-bg d-flex align-items-end"
                         style="background-image: url('public/img/post-slide-4.jpg');">
                         <div class="img-bg-inner">
-                          <h2>9 Half-up/half-down Hairstyles for Long and Medium
-                            Hair</h2>
+                          <h2>9 Half-up/half-down Hairstyles for Long and Medium Hair</h2>
                           <p>Lorem ipsum dolor sit amet, consectetur adipisicing
                             elit. Quidem neque est mollitia! Beatae minima
                             assumenda repellat harum vero, officiis ipsam magnam
@@ -132,169 +128,180 @@
         </section><!-- End Hero Slider Section -->
 
 
-        <%if(themes !="" ){%>
-          <div class="ms-5 mt-5">
-            <%themes.map((val)=>{%>
-              <div class="d-inline-block ">
-                <form action="/searchData" method="post">
-                  <input type="hidden" value="<%=val%>" name="search">
-                  <button type="submit" class="btn btn-primary m-2">
-                    <%=val%>
-                  </button>
-                </form>
+        <!-- tags -->
+            <%if(themes != "" ){%>
+              <div class="ms-5 mt-5">
+                <%themes.map((val)=>{%>
+                  <div class="d-inline-block ">
+                    <form action="/searchData" method="post">
+                      <input type="hidden" value="<%=val%>" name="search">
+                      <button type="submit" class="btn btn-primary m-2">
+                        <%=val%>
+                      </button>
+                    </form>
+                  </div>
+                  <%})%>
               </div>
-              <%})%>
-          </div>
-          <%}%>
-            <!-- ======= Post Grid Section ======= -->
-            <section id="posts" class="posts">
-              <div class="container" data-aos="fade-up">
-                <div class="row g-5">
-                  <% if (successMessages.length>0) { %>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                      <%=successMessages%>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <% } %>
+              <%}%>
+                <!-- ======= Post Grid Section ======= -->
+                <section id="posts" class="posts">
+                  <div class="container" data-aos="fade-up">
+                    <div class="row g-5">
+                      <% if (successMessages.length>0) { %>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                          <%=successMessages%>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <% } %>
 
-                      <%blogs.map((val)=>{%>
-                        <div class="col-lg-4 p-5">
-                          <div class="post-entry-1 lg">
-                            <%let images=val.image%>
-                              <%if(images.length>1){%>
-                                <%for(let i=0;i< images.length ; i++){%>
-                                  <a href="singleBlogPost?blogId=<%=val._id%>"><img src="<%=images[i]%>" alt
-                                      class="img-fluid" width="45%" height="auto"></a>
-                                  <%}%>
-                                    <%}else{%>
-                                      <a href="singleBlogPost?blogId=<%=val._id%>"><img src="<%=val.image%>"
-                                          class="img-fluid" style="width: 100%;height: 200px;object-fit:cover;"></a>
+                          <%blogs.map((val)=>{%>
+                            <div class="col-lg-4 p-5">
+                              <div class="post-entry-1 lg">
+                                <%let images=val.image%>
+                                  <%if(images.length>1){%>
+                                    <%for(let i=0;i< images.length ; i++){%>
+                                      <a href="singleBlogPost?blogId=<%=val._id%>"><img src="<%=images[i]%>" alt
+                                          class="img-fluid" width="45%" height="auto"></a>
                                       <%}%>
-                                        <div class="post-meta">
-                                          <span class="date">
-                                            <%=val.theme%>
-                                          </span>
-                                          <% if (val.createdAt instanceof Date) { %>
-                                            <span class="mx-1">&bullet;</span> <span>
-                                              <%=val.createdAt.toDateString()%>
-                                            </span>
-                                            <% } %>
-                                        </div>
-                          </div>
-                          <h3><a href="#">
-                              <%=val.title%>
-                            </a></h3>
-                          <p class="mb-4 d-block">
-                            <%=val.detail%>
-                          </p>
-                          <div class="d-flex align-items-center justify-content-between">
-                            <div class="name d-flex">
-                              <p class="m-0 p-0 text-capitalize">Created By
-                                <a href="/blogger?bloggerId=<%=val.bloggerId%>" id="name"
-                                  class="d-inline text-capitalize ms-1">
-                                  <%=val.username%>
-                                </a>
-                              </p>
-                            </div>
-                            <div>
-                              <%if(user){%>
-                                <%if(user.id !=val.bloggerId){%>
-                                  <% if (val.isfollowed ) { %>
-                                    <a href="/unfollow?id=<%= val.bloggerId %>" class="mx-2 text-danger">
-                                      <button class="btn btn btn-outline-dark">Following</button></a>
-                                    <% } else{%>
-                                      <a href="/follow?id=<%= val.bloggerId %>"
-                                        onclick="followFunction(`<%=val.bloggerId%>`)" class="mx-2 text-danger">
-                                        <button class="btn btn btn-outline-dark">Follow</button></a>
-                                      <%}%>
-                                        <%}%>
+                                        <%}else{%>
+                                          <a href="singleBlogPost?blogId=<%=val._id%>"><img src="<%=val.image%>"
+                                              class="img-fluid" style="width: 100%;height: 200px;object-fit:cover;"></a>
                                           <%}%>
-                            </div>
-
-                            <div class="d-flex my-3 j">
-                              <div>
-                                <% if (val.isLiked===true) { %>
-                                  <a href="/unlike?id=<%= val._id %>" class="mx-2 text-danger">
-                                    <%=val.like%><span class="bi-heart-fill"></span>
-                                  </a>
-                                  <% } else { %>
-                                    <a href="/like?id=<%= val._id %>" onclick="likeFunction(`<%=val.bloggerId%>`)"
-                                      class="mx-2 text-danger" id="like">
-                                      <%=val.like%><span class="bi-heart"></span>
+                                            <div class="post-meta">
+                                              <span class="date">
+                                                <%=val.theme%>
+                                              </span>
+                                              <% if (val.createdAt instanceof Date) { %>
+                                                <span class="mx-1">&bullet;</span> <span>
+                                                  <%=val.createdAt.toDateString()%>
+                                                </span>
+                                                <% } %>
+                                            </div>
+                              </div>
+                              <h3><a href="#">
+                                  <%=val.title%>
+                                </a></h3>
+                              <p class="mb-4 d-block">
+                                <%=val.detail%>
+                              </p>
+                              <div class="d-flex align-items-center justify-content-between">
+                                <div class="name d-flex">
+                                  <p class="m-0 p-0 text-capitalize">Created By
+                                    <a href="/blogger?bloggerId=<%=val.bloggerId%>" id="name"
+                                      class="d-inline text-capitalize ms-1">
+                                      <%=val.username%>
                                     </a>
-                                    <% } %>
-                              </div>
-                              <div>
-                                <% if (val.isSaved) { %>
-                                  <a href="/unsave?id=<%= val._id %>" class="mx-2 text-danger"><span
-                                      class="bi-trash"></span></a>
-                                  <% } else{%>
-                                    <a href="/save?id=<%= val._id %>" class="mx-2 text-danger"><span
-                                        class="bi-save"></span></a>
-                                    <%}%>
-                              </div>
-                              <a href="/blog" class="mx-2 text-danger comment-btn" data-post-id="<%= val._id %>"
-                                data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_<%=val._id%>">
-                                <%=val.comment%><span class="bi-chat"></span>
-                              </a>
-                              <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_<%=val._id%>"
-                                aria-labelledby="offcanvasRightLabel">
-                                <div class="offcanvas-header">
-                                  <h5 id="offcanvasRightLabel">Comments</h5>
-                                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
-                                    aria-label="Close"></button>
+                                  </p>
                                 </div>
-                                <div class="offcanvas-body">
-                                  <h3>Add Comment</h3>
-                                  <form action="/comment?id=<%= val._id %>" method="post">
-                                    <div id="comment-section">
-                                      <input type="hidden" value="<%=val._id%>" name="blogId">
-                                      <textarea name="comment" placeholder="Leave a comment" class="w-100"></textarea>
-                                      <button type="submit">Add Comment</button>
+                                <div>
+                                  <%if(user){%>
+                                    <%if(user.id !=val.bloggerId){%>
+                                      <% if (val.isfollowed ) { %>
+                                        <a href="/unfollow?id=<%= val.bloggerId %>" class="mx-2 text-danger">
+                                          <button class="btn btn btn-outline-dark">Following</button></a>
+                                        <% } else{%>
+                                          <a href="/follow?id=<%= val.bloggerId %>"
+                                            onclick="followFunction(`<%=val.bloggerId%>`)" class="mx-2 text-danger">
+                                            <button class="btn btn btn-outline-dark">Follow</button></a>
+                                          <%}%>
+                                            <%}%>
+                                              <%}%>
+                                </div>
+
+                                <div class="d-flex my-3 j">
+                                  <div>
+                                    <% if (val.isLiked===true) { %>
+                                      <%if(user){%>
+                                        <a href="/unlike?id=<%= val._id %>" class="mx-2 text-danger">
+                                          <%=val.like%><span class="bi-heart-fill"></span>
+                                        </a>
+                                        <%}%>
+                                          <% } else { %>
+                                            <a href="/like?id=<%= val._id %>"
+                                              onclick="likeFunction(`<%=val.bloggerId%>`)" class="mx-2 text-danger"
+                                              id="like">
+                                              <%=val.like%><span class="bi-heart"></span>
+                                            </a>
+                                            <% } %>
+                                  </div>
+                                  <div>
+
+                                    <% if (val.isSaved) { %>
+                                      <%if(user){%>
+                                        <a href="/unsave?id=<%= val._id %>" class="mx-2 text-danger"><span
+                                            class="bi-trash"></span></a>
+                                        <%}%>
+                                          <% } else{%>
+                                            <a href="/save?id=<%= val._id %>" class="mx-2 text-danger"><span
+                                                class="bi-save"></span></a>
+                                            <%}%>
+                                  </div>
+                                  <a href="/blog" class="mx-2 text-danger comment-btn" data-post-id="<%= val._id %>"
+                                    data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_<%=val._id%>">
+                                    <%=val.comment%><span class="bi-chat"></span>
+                                  </a>
+                                  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_<%=val._id%>"
+                                    aria-labelledby="offcanvasRightLabel">
+                                    <div class="offcanvas-header">
+                                      <h5 id="offcanvasRightLabel">Comments</h5>
+                                      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                                        aria-label="Close"></button>
                                     </div>
-                                  </form>
-                                  <br><br>
-                                  <div class="card mb-3">
-                                    <div class="card-body">
-                                      <p class="card-text">
-                                        <%= val.commentData %>
-                                      </p>
-                                      <p class="text-muted text-capitalize mb-0">Written By: <%= val.commentUserData %>
-                                      </p>
+                                    <div class="offcanvas-body">
+                                      <h3>Add Comment</h3>
+                                      <form action="/comment?id=<%= val._id %>" method="post">
+                                        <div id="comment-section">
+                                          <input type="hidden" value="<%=val._id%>" name="blogId">
+                                          <textarea name="comment" placeholder="Leave a comment"
+                                            class="w-100"></textarea>
+                                          <button type="submit">Add Comment</button>
+                                        </div>
+                                      </form>
+                                      <br><br>
+                                      <div class="card mb-3">
+                                        <div class="card-body">
+                                          <p class="card-text">
+                                            <%= val.commentData %>
+                                          </p>
+                                          <p class="text-muted text-capitalize mb-0">Written By: <%= val.commentUserData
+                                              %>
+                                          </p>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
 
-                        <%})%>
-                </div>
-              </div>
-            </section>
+                            <%})%>
+                    </div>
+                  </div>
+                </section>
 
-            <nav aria-label="Page navigation example">
-              <ul class="pagination d-flex justify-content-center">
-                <li class="page-item">
-                  <% if (page> 1) { %>
-                    <a class="page-link" href="?page=<%= parseInt(page) - 1 %>">Previous</a>
-                    <% } %>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="?page=<%= parseInt(page) %>">
-                    <%= page %>
-                  </a>
-                </li>
-                <li class="page-item">
-                  <% if (blogs.length===limit) { %>
-                    <a class="page-link" href="?page=<%= parseInt(page) + 1 %>">Next</a>
-                    <% } %>
-                </li>
-              </ul>
-            </nav>
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination d-flex justify-content-center">
+                    <li class="page-item">
+                      <% if (page> 1) { %>
+                        <a class="page-link" href="?page=<%= parseInt(page) - 1 %>">Previous</a>
+                        <% } %>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link" href="?page=<%= parseInt(page) %>">
+                        <%if(blogs.length>6){%>
+                          <%= page %>
+                            <%}%>
+                      </a>
+                    </li>
+                    <li class="page-item">
+                      <% if (blogs.length>6) { %>
+                        <a class="page-link" href="?page=<%= parseInt(page) + 1 %>">Next</a>
+                        <% } %>
+                    </li>
+                  </ul>
+                </nav>
   </main><!-- End #main -->
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

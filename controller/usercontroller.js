@@ -2,11 +2,11 @@ import { user, blog, category } from "./models.js";
 import { validateRegisterData, validateNewUserRegisterData } from "../validators/register.js";
 import { validateLoginData, validateEmailData, validatePasswordData } from "../validators/login.js";
 import { blogPostData } from '../Aggregrate/blogPost_aggregation.js';
-import { premiumBlogPostData } from '../Aggregrate/premium_blogPost_aggregaion.js';
 import jwt from "jsonwebtoken";
 import sessionStorage from "sessionstorage-for-nodejs";
 import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 import logger from '../logger.js';
 import OpenAI from "openai";
 const openai = new OpenAI({
@@ -348,20 +348,7 @@ const msgToAI = async (req, res) => {
     if (req.isAuthenticated()) {
       let blogs;
       const categorydata = await category.find({});
-      const { startIndex, limit } = req.pagination;
-
-      if (req.user.IsSubscribed == true) {
-        blogs = await blog.aggregate(premiumBlogPostData(id)).skip(startIndex)
-          .limit(limit);
-      } else {
-        blogs = await blog.aggregate(blogPostData(id)).skip(startIndex)
-          .limit(limit);
-      }
-      let post = [], IsSubscribed;
-      let id = req.user.id;
-      id = new mongoose.Types.ObjectId(id);
-      let IsUserSubscribed = await user.findOne(id);
-      IsSubscribed = IsUserSubscribed.IsSubscribed
+      let id = new mongoose.Types.ObjectId(req.user.id);
 
       const message = req.body.msg;
       console.log(message);
@@ -373,15 +360,18 @@ const msgToAI = async (req, res) => {
 
       const response = completion.choices[0].message.content;
 
+      if (req.user.IsSubscribed == true) {
+        blogs = await blog.aggregate([...blogPostData(id)]).skip(req.pagination.startIndex)
+      } else {
+        blogs = await blog.aggregate([{ $match: { isPremium: false, }, }, ...blogPostData(id)]).skip(req.pagination.startIndex)
+      }
+
       return res.render("AdminPanel/index", {
         categorydata,
         themes: [],
         blogs,
-        totalPages: Math.ceil(blogs.length / limit),
         page: req.pagination.page,
         user: req.user,
-        IsSubscribed: IsSubscribed,
-        limit,
         response
       });
 

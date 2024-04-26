@@ -3,12 +3,6 @@ const blogPostData = (id) => [
         $match: { status: true }
     },
     {
-        $match: { isPremium: false }
-    },
-    {
-        $limit: 5
-    },
-    {
         $lookup: {
             from: "categories",
             localField: "categoryId",
@@ -103,7 +97,6 @@ const blogPostData = (id) => [
     {
         $project: {
             _id: "$_id",
-            theme: "$theme",
             title: "$title",
             image: "$image",
             detail: "$detail",

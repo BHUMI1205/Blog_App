@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { use } from "chai";
 
 const userschema = mongoose.Schema({
   fname: {
@@ -53,14 +54,17 @@ userschema.pre('save', function (next) {
 
   // only hash the password if it has been modified (or is new)
   if (!user.isModified('password')) return next();
-
-  const salt = bcrypt.genSalt(10);
-  const hashedPassword = bcrypt.hash(user.password, salt);
-  user.password = hashedPassword;
-  next();
-
+  bcrypt.genSalt(10, function (err, salt) {
+    if (err) return next(err);
+    bcrypt.hash(user.password, salt, function (err, hash) {
+      if (err) return next(err);
+      user.password = hash;
+      user.verify = hash;
+      next();
+    })
+  })
 });
 
-const user = mongoose.model("user", userschema); 
+const user = mongoose.model("user", userschema);
 
 export { user };

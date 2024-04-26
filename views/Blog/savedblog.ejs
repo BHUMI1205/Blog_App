@@ -2,6 +2,10 @@
 
 <main id="main" class="main my-5 py-5">
 
+  <a href="/blog" class="m-5">
+    <button type="button" class="btn btn-outline-dark mt-5 ms-5"><span class="bi-arrow-left"></span></button>
+  </a>
+  
   <section id="posts" class="posts">
     <div class="container" data-aos="fade-up">
       <div class="row g-5">
@@ -72,7 +76,7 @@
         <a class="page-link" href="?page=<%= parseInt(page) %>"><%= page %></a>
       </li>
       <li class="page-item">
-        <% if (blogs.length === limit) { %>
+        <% if (blogs.length === 6) { %>
           <a class="page-link" href="?page=<%= parseInt(page) + 1 %>">Next</a>
         <% } %>
         

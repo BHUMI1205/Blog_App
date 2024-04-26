@@ -11,7 +11,7 @@ const customLevels = {
         security: 6,
         blacklist: 7,
         warning: 8,
-        error: 9
+        error: 9,
     }
 };
 
@@ -24,7 +24,7 @@ const logger = winston.createLogger({
     transports: [
         new winston.transports.Console({
             format: winston.format.combine(
-                winston.format.colorize(),
+                // winston.format.colorize(),
                 winston.format.simple()
             )
         })
