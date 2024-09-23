@@ -1042,8 +1042,8 @@ const paypalPaymentPro = async (req, res) => {
             "payment_method": "paypal"
          },
          "redirect_urls": {
-            "return_url": `http://localhost:7800/paypalsuccess?userId=${userId}&subscriptionPlan=pro`,
-            "cancel_url": "http://localhost:7800/paypalcancel"
+            "return_url": `https://blogs-0chr.onrender.com/paypalsuccess?userId=${userId}&subscriptionPlan=pro`,
+            "cancel_url": "https://blogs-0chr.onrender.com/paypalcancel"
          },
          "transactions": [{
             "amount": {
@@ -1082,8 +1082,8 @@ const paypalPaymentEnterprise = async (req, res) => {
             "payment_method": "paypal"
          },
          "redirect_urls": {
-            "return_url": `http://localhost:7800/paypalsuccess?userId=${userId}&subscriptionPlan=enterprise`,
-            "cancel_url": "http://localhost:7800/paypalcancel"
+            "return_url": `https://blogs-0chr.onrender.com/paypalsuccess?userId=${userId}&subscriptionPlan=enterprise`,
+            "cancel_url": "https://blogs-0chr.onrender.com/paypalcancel"
          },
          "transactions": [{
             "amount": {
