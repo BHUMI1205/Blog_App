@@ -44,67 +44,71 @@ const categoryAdd = async (req, res) => {
 const categoryDataAdd = async (req, res) => {
   try {
     if (req.isAuthenticated()) {
-      let file = req.file
+      const file = req.file;
       const { theme, detail, status } = req.body;
-      let categoryData = await category.findOne({ theme: theme });
+      let categoryData = await category.findOne({ theme });
       const validationError = validateCategoryData(theme, detail, file);
 
       if (categoryData) {
-        logger.warning("Category already exists")
+        logger.warning("Category already exists");
         req.flash("error", "Category already exists");
         return res.redirect("back");
-      } else {
-        if (validationError) {
-          req.flash("error", validationError);
-          return res.redirect("back");
-        } else {
-          const uploadStream = await cloudinary.uploader.upload_stream({
-            public_id: Date.now() + Math.floor((Math.random() * 1000000)),
-            resource_type: "image",
-            folder: "blogs/image"
-          }, (err, result) => {
-            if (err) {
-              logger.warning("Error uploading image to Cloudinary")
-              req.flash("error", "Error uploading image to Cloudinary");
-              return res.redirect("back");
-            }
-            else {
-              try{
-                  let data = await category.create({
-                    theme: theme,
-                    detail: detail,
-                    image: result.url,
-                    public_id: result.public_id,
-                    adminId: req.user.id,
-                    status: status
-                  });
-                  if (!data) {
-                    logger.warning("Category is not Added")
-                    req.flash("error", "Category is not Added");
-                    return res.redirect("back");
-                  } else {
-                    logger.log("Category is Added")
-                    return res.redirect("/category");
-                  }
-              } catch(err){
-                   logger.error(err);
-                  console.log(err);
-                  return res.redirect("back");
-              }
-          })
-          streamifier.createReadStream(file.buffer).pipe(uploadStream);
-        }
       }
-    }
-    else {
-      return res.redirect('/')
+
+      if (validationError) {
+        req.flash("error", validationError);
+        return res.redirect("back");
+      }
+
+      // Use a promise-based upload method to avoid callback issues
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            public_id: Date.now() + Math.floor(Math.random() * 1000000),
+            resource_type: "image",
+            folder: "blogs/image",
+          },
+          (err, result) => {
+            if (err) {
+              return reject(err);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        streamifier.createReadStream(file.buffer).pipe(uploadStream);
+      });
+
+      // After successful upload, create the category
+      const data = await category.create({
+        theme,
+        detail,
+        image: result.url,
+        public_id: result.public_id,
+        adminId: req.user.id,
+        status,
+      });
+
+      if (!data) {
+        logger.warning("Category is not Added");
+        req.flash("error", "Category is not Added");
+        return res.redirect("back");
+      }
+
+      logger.log("Category is Added");
+      return res.redirect("/category");
+    } else {
+      return res.redirect('/');
     }
   } catch (err) {
     logger.error(err);
     console.log(err);
+    req.flash("error", "Something went wrong. Please try again.");
     return res.redirect("back");
   }
 };
+
 
 const deletecategory = async (req, res) => {
   try {
