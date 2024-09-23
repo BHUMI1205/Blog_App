@@ -69,7 +69,7 @@ const categoryDataAdd = async (req, res) => {
               return res.redirect("back");
             }
             else {
-              let data = category.create({
+              let data = await category.create({
                 theme: theme,
                 detail: detail,
                 image: result.url,
