@@ -69,23 +69,28 @@ const categoryDataAdd = async (req, res) => {
               return res.redirect("back");
             }
             else {
-              let data = await category.create({
-                theme: theme,
-                detail: detail,
-                image: result.url,
-                public_id: result.public_id,
-                adminId: req.user.id,
-                status: status
-              });
-              if (!data) {
-                logger.warning("Category is not Added")
-                req.flash("error", "Category is not Added");
-                return res.redirect("back");
-              } else {
-                logger.log("Category is Added")
-                return res.redirect("/category");
+              try{
+                  let data = await category.create({
+                    theme: theme,
+                    detail: detail,
+                    image: result.url,
+                    public_id: result.public_id,
+                    adminId: req.user.id,
+                    status: status
+                  });
+                  if (!data) {
+                    logger.warning("Category is not Added")
+                    req.flash("error", "Category is not Added");
+                    return res.redirect("back");
+                  } else {
+                    logger.log("Category is Added")
+                    return res.redirect("/category");
+                  }
+              } catch(err){
+                   logger.error(err);
+                  console.log(err);
+                  return res.redirect("back");
               }
-            }
           })
           streamifier.createReadStream(file.buffer).pipe(uploadStream);
         }
